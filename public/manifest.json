@@ -1,0 +1,20 @@
+{
+  "name": "Roots Tabacaria",
+  "short_name": "Roots",
+  "description": "Tabacaria Roots — Recife. Curadoria de tabaco, narguilé, sedas e acessórios.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0c0c0a",
+  "theme_color": "#0d3d1d",
+  "lang": "pt-BR",
+  "categories": ["shopping", "lifestyle"],
+  "icons": [
+    {
+      "src": "/assets/logo-roots-mark.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

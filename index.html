@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Ícone e PWA -->
+    <link rel="icon" type="image/svg+xml" href="/assets/logo-roots-mark.png" />
+    <link rel="apple-touch-icon" href="/assets/logo-roots-mark.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#0d3d1d" />
+
+    <!-- SEO -->
+    <title>Roots Tabacaria · Recife</title>
+    <meta name="description" content="Tabacaria Roots — Recife. Curadoria de tabaco, narguilé, sedas e acessórios. Pedido direto no WhatsApp, entrega em toda grande Recife" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph (WhatsApp, Facebook, etc.) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Roots Tabacaria · Recife" />
+    <meta property="og:description" content="Curadoria de tabaco, narguilé, sedas e acessórios. Pedido direto no WhatsApp, entrega em toda grande Recife." />
+    <meta property="og:image" content="/assets/logo-roots-mark.png" />
+    <meta property="og:locale" content="pt_BR" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Roots Tabacaria · Recife" />
+    <meta name="twitter:description" content="Curadoria de tabaco, narguilé, sedas e acessórios. Pedido no WhatsApp." />
+
+    <!-- Schema.org — LocalBusiness -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Store",
+      "name": "Roots Tabacaria",
+      "description": "Tabacaria Roots — Recife. Curadoria de tabaco, narguilé, sedas e acessórios.",
+      "telephone": "+558199922-3444",
+      "url": "https://rootstabacaria.com.br",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Av. Conde da Boa Vista, 247",
+        "addressLocality": "Recife",
+        "addressRegion": "PE",
+        "postalCode": "50060-002",
+        "addressCountry": "BR"
+      },
+      "openingHoursSpecification": [
+        { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday"], "opens": "10:00", "closes": "22:00" },
+        { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Friday","Saturday"], "opens": "10:00", "closes": "00:00" },
+        { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Sunday"], "opens": "14:00", "closes": "22:00" }
+      ],
+      "priceRange": "R$",
+      "currenciesAccepted": "BRL",
+      "paymentAccepted": "Dinheiro, Cartão, PIX"
+    }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
