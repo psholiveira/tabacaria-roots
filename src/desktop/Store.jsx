@@ -29,9 +29,10 @@ export function DesktopStore() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0,1fr))', gap: 16 }}>
-        <ContactRow icon={<Icon.pin />} title="Endereço" value="Av. Conde da Boa Vista, 247" sub="Boa Vista · Recife/PE · CEP 50060-002"/>
-        <ContactRow icon={<Icon.clock />} title="Horário" value="Seg-Qui 10–22h · Sex-Sáb 10–00h" sub="Dom 14–22h"/>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0,1fr))', gap: 16 }}>
+        <ContactRow icon={<Icon.pin />} title="Unidade 1" value="Av. Conde da Boa Vista, 247" sub="Boa Vista · Recife/PE · CEP 50060-002"/>
+        <ContactRow icon={<Icon.pin />} title="Unidade 2" value="Rua do Hospício, 250" sub="Boa Vista · Recife/PE · CEP 50050-035"/>
+        <ContactRow icon={<Icon.clock />} title="Horário" value="Seg-Sex 09–18:30h · Sáb 09–16h" sub="Dom - Fechado"/>
         <ContactRow icon={<Icon.whatsapp />} title="WhatsApp" value="(81) 99922-3444" cta="Chamar" onClick={() => window.open(`https://wa.me/${STORE_INFO.whatsapp}`, '_blank')}/>
       </div>
     </div>

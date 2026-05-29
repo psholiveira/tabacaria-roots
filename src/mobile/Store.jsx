@@ -45,7 +45,8 @@ export function MobileStore({ onBack }) {
         </div>
 
         <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <ContactRow icon={<Icon.pin />} title="Endereço" value={STORE_INFO.address.split(' — ')[0]} sub={STORE_INFO.address.split(' — ')[1] + ' · CEP ' + STORE_INFO.cep}/>
+          <ContactRow icon={<Icon.pin />} title="Unidade 1" value={STORE_INFO.address.split(' — ')[0]} sub={STORE_INFO.address.split(' — ')[1] + ' · CEP ' + STORE_INFO.cep}/>
+          <ContactRow icon={<Icon.pin />} title="Unidade 2" value={STORE_INFO.address2.split(' — ')[0]} sub={STORE_INFO.address2.split(' — ')[1] + ' · CEP ' + STORE_INFO.cep2}/>
           <ContactRow icon={<Icon.whatsapp />} title="WhatsApp" value="(81) 99922-3444" cta="Chamar" onClick={() => window.open(`https://wa.me/${STORE_INFO.whatsapp}`, '_blank')}/>
           <ContactRow icon={<Icon.insta />} title="Instagram" value={STORE_INFO.instagram} cta="Abrir" onClick={() => window.open('https://www.instagram.com/tabacariareciferoots/', '_blank')}/>
         </div>

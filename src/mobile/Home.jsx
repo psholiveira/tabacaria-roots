@@ -158,6 +158,9 @@ export function MobileHome({ products, go, addToCart, openProduct }) {
               <div style={{ fontSize: 12, color: 'var(--ink-dim)', marginTop: 6, lineHeight: 1.5 }}>
                 {STORE_INFO.address.split(' — ')[0]}<br/>{STORE_INFO.address.split(' — ')[1]}
               </div>
+              <div style={{ fontSize: 12, color: 'var(--ink-dim)', marginTop: 4, lineHeight: 1.5 }}>
+                {STORE_INFO.address2.split(' — ')[0]}<br/>{STORE_INFO.address2.split(' — ')[1]}
+              </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12, fontSize: 11.5, color: 'var(--positive)', fontWeight: 600 }}>
                 <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--positive)' }}/>
                 Aberto agora · até 22:00

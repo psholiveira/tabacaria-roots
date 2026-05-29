@@ -40,7 +40,7 @@ export function DesktopHeader({ cart, go, screen, onOpenCart }) {
 
         <div style={{ flex: 1, maxWidth: 380, position: 'relative' }}>
           <Icon.search size={14} style={{ position: 'absolute', left: 14, top: 12, color: 'var(--ink-mute)' }}/>
-          <input className="r-input" placeholder="O que vai fumar hoje?" style={{ paddingLeft: 38, padding: '10px 14px 10px 38px', fontSize: 13 }}
+          <input className="r-input" placeholder="Tabaco, piteira, seda..." style={{ paddingLeft: 38, padding: '10px 14px 10px 38px', fontSize: 13 }}
             onFocus={() => go('catalog')} readOnly/>
         </div>
 
@@ -96,6 +96,7 @@ export function DesktopFooter({ go }) {
             { l: '(81) 99922-3444' },
             { l: '@tabacariareciferoots' },
             { l: 'Av. Conde da Boa Vista, 247' },
+            { l: 'Rua do Hospício, 250' },
           ]}/>
           <FooterCol title="Horário" items={STORE_INFO.hours.map(h => ({ l: `${h.day} · ${h.time}` }))}/>
         </div>

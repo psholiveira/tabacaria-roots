@@ -1,7 +1,6 @@
 // store/products.js — Supabase backend + pub/sub + React hook
 
 import { useSyncExternalStore } from 'react';
-import { SEED_PRODUCTS } from '../data.js';
 import { supabase } from '../lib/supabase.js';
 
 // ─── Estado local (espelho síncrono do Supabase) ───────────────────────────
@@ -106,18 +105,6 @@ export async function deleteProduct(id) {
   notify();
 }
 
-export async function resetProductsToSeed() {
-  // Apaga tudo e repopula com seed
-  const { error: delErr } = await supabase.from('products').delete().neq('id', '');
-  if (delErr) throw delErr;
-  const { data, error } = await supabase
-    .from('products')
-    .insert(SEED_PRODUCTS.map(toDb))
-    .select();
-  if (error) throw error;
-  _products = data.map(fromDb);
-  notify();
-}
 
 export function newProductId() {
   return 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);

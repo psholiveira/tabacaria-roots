@@ -7,8 +7,7 @@ import { ProductImage } from '../components/ProductImage.jsx';
 import { ProductCard } from '../components/ProductCard.jsx';
 import { supabase } from '../lib/supabase.js';
 import {
-  useProducts, useProductsLoading, upsertProduct, deleteProduct,
-  resetProductsToSeed, newProductId,
+  useProducts, useProductsLoading, upsertProduct, deleteProduct, newProductId,
 } from '../store/products.js';
 
 // ─── Painel principal ─────────────────────────────────────────────────────
@@ -56,17 +55,7 @@ export function AdminApp() {
     }
   };
 
-  const handleReset = async () => {
-    if (!confirm('Resetar pro catálogo de exemplo? Suas alterações serão perdidas.')) return;
-    try {
-      setOpError(null);
-      await resetProductsToSeed();
-    } catch (err) {
-      setOpError(`Erro ao resetar: ${err.message}`);
-    }
-  };
-
-  const handleLogout = async () => {
+const handleLogout = async () => {
     await supabase.auth.signOut();
   };
 
@@ -108,10 +97,7 @@ export function AdminApp() {
             <a href="#" style={{ fontSize: 11.5, color: 'var(--ink-dim)', textDecoration: 'none', padding: '8px 12px' }}>
               ← Voltar à loja
             </a>
-            <button onClick={handleReset} className="btn-ghost" style={{ fontSize: 11 }}>
-              Resetar
-            </button>
-            <button onClick={handleLogout} className="btn-ghost" style={{ fontSize: 11 }}>
+<button onClick={handleLogout} className="btn-ghost" style={{ fontSize: 11 }}>
               Sair
             </button>
             <button

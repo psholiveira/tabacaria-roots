@@ -42,7 +42,7 @@ export function DesktopHome({ products, go, openProduct, addToCart }) {
             </h1>
             <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 16, marginTop: 22, maxWidth: 460, lineHeight: 1.5 }}>
               Curadoria de tabaco, narguilé, sedas, bongs e acessórios premium.
-              Pedido direto no WhatsApp, retirada na loja ou entrega em toda grande Recife.
+              Pedido direto no WhatsApp, retirada na loja ou entrega em toda grande Recife e região metropolitana.
             </p>
             <div style={{ display: 'flex', gap: 12, marginTop: 30 }}>
               <button className="btn-primary" onClick={() => go('catalog')} style={{ padding: '16px 24px', display: 'flex', alignItems: 'center', gap: 8 }}>
