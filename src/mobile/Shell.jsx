@@ -2,24 +2,6 @@
 
 import { Icon } from '../components/Icons.jsx';
 
-export function StatusBar({ light }) {
-  const c = light ? '#fff' : 'var(--ink)';
-  return (
-    <div style={{
-      height: 44, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '14px 28px 0', color: c, fontFamily: '-apple-system, system-ui',
-      fontWeight: 600, fontSize: 15, position: 'relative', zIndex: 50,
-      flexShrink: 0,
-    }}>
-      <span>9:41</span>
-      <span style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
-        <svg width="18" height="11" viewBox="0 0 18 11" fill="currentColor"><rect x="0" y="6" width="3" height="5" rx=".7"/><rect x="5" y="4" width="3" height="7" rx=".7"/><rect x="10" y="2" width="3" height="9" rx=".7"/><rect x="15" y="0" width="3" height="11" rx=".7"/></svg>
-        <svg width="24" height="11" viewBox="0 0 24 11" fill="none" stroke="currentColor" strokeWidth="1"><rect x="0.5" y="0.5" width="20" height="10" rx="2.5"/><rect x="2" y="2" width="17" height="7" rx="1.5" fill="currentColor"/></svg>
-      </span>
-    </div>
-  );
-}
-
 export function AgeGate({ onConfirm }) {
   return (
     <div style={{
@@ -27,11 +9,10 @@ export function AgeGate({ onConfirm }) {
       display: 'flex', flexDirection: 'column',
       zIndex: 200,
     }}>
-      <StatusBar light />
       <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 4,
         background: 'linear-gradient(180deg, var(--rasta-green) 0 33.33%, var(--rasta-gold) 33.33% 66.66%, var(--rasta-red) 66.66% 100%)',
       }}/>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '40px 28px 40px', maxWidth: 480, margin: '0 auto', width: '100%' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '40px 28px 40px', maxWidth: 480, margin: '0 auto', width: '100%', overflowY: 'auto' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <img src="/assets/logo-roots-mark.png" alt="Roots" style={{ width: 60, height: 60 }} />

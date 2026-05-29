@@ -1,7 +1,7 @@
 ﻿// mobile/Store.jsx — info da loja
 
 import { STORE_INFO } from '../data.js';
-import { isStoreOpen } from '../config.js';
+import { isStoreOpen, getCloseTimeLabel } from '../config.js';
 import { Icon } from '../components/Icons.jsx';
 import { MobileHeader, Label } from './Shell.jsx';
 
@@ -31,7 +31,7 @@ export function MobileStore({ onBack }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: isOpen ? 'var(--positive)' : 'var(--rasta-red)' }}/>
             <span style={{ fontSize: 12.5, fontWeight: 600, color: isOpen ? 'var(--positive)' : 'var(--rasta-red)' }}>
-              {isOpen ? 'Aberto agora · até 22:00' : 'Fechado · abre 10:00'}
+              {isOpen ? `Aberto agora · até ${getCloseTimeLabel()}` : 'Fechado'}
             </span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>

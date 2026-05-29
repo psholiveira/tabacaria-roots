@@ -5,6 +5,7 @@ import { Icon } from '../components/Icons.jsx';
 import { ProductCard } from '../components/ProductCard.jsx';
 import { SkeletonGrid } from '../components/SkeletonCard.jsx';
 import { useProductsLoading } from '../store/products.js';
+import { isStoreOpen, getCloseTimeLabel } from '../config.js';
 import { Section } from './Shell.jsx';
 
 export function MobileHome({ products, go, addToCart, openProduct }) {
@@ -161,10 +162,17 @@ export function MobileHome({ products, go, addToCart, openProduct }) {
               <div style={{ fontSize: 12, color: 'var(--ink-dim)', marginTop: 4, lineHeight: 1.5 }}>
                 {STORE_INFO.address2.split(' — ')[0]}<br/>{STORE_INFO.address2.split(' — ')[1]}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12, fontSize: 11.5, color: 'var(--positive)', fontWeight: 600 }}>
-                <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--positive)' }}/>
-                Aberto agora · até 22:00
-              </div>
+              {isStoreOpen() ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12, fontSize: 11.5, color: 'var(--positive)', fontWeight: 600 }}>
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--positive)' }}/>
+                  Aberto agora · até {getCloseTimeLabel()}
+                </div>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12, fontSize: 11.5, color: 'var(--rasta-red)', fontWeight: 600 }}>
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--rasta-red)' }}/>
+                  Fechado agora
+                </div>
+              )}
             </div>
             <button onClick={() => go('store')} style={{
               background: 'transparent', border: '1.5px solid var(--ink)', color: 'var(--ink)',

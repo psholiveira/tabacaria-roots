@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useCart } from '../hooks/useCart.js';
 import { useProducts } from '../store/products.js';
-import { AgeGate, StatusBar, BottomNav } from './Shell.jsx';
+import { AgeGate, BottomNav } from './Shell.jsx';
 import { MobileHome } from './Home.jsx';
 import { MobileCatalog } from './Catalog.jsx';
 import { MobileProduct } from './Product.jsx';
@@ -75,7 +75,6 @@ export function MobileApp() {
 
   return (
     <div className="roots-app" style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-      <StatusBar />
       <div style={{ flex: 1, maxWidth: 480, width: '100%', margin: '0 auto' }}>
         {screen === 'home' && (
           <MobileHome products={products} go={go} addToCart={(p,v) => cart.add(p,v)} openProduct={openProduct} />
