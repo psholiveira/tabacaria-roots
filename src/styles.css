@@ -1,7 +1,6 @@
 /* reset */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; background: #0c0c0a; }
-#root { height: 100%; }
+html, body { background: #0c0c0a; }
 
 /* ROOTS — Tabacaria
    Tema reggae urbano: verde-floresta, dourado, vermelho-rubi sobre preto.
@@ -87,10 +86,9 @@ html, body { height: 100%; background: #0c0c0a; }
   font-family: 'Space Grotesk', system-ui, sans-serif;
   background: var(--bg);
   color: var(--ink);
-  height: 100%;
   width: 100%;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
