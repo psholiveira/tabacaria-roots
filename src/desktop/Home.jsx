@@ -6,6 +6,7 @@ import { ProductCard } from '../components/ProductCard.jsx';
 import { SkeletonGrid } from '../components/SkeletonCard.jsx';
 import { useProductsLoading } from '../store/products.js';
 import { SectionHeader } from './Chrome.jsx';
+import { FadeIn } from '../components/FadeIn.jsx';
 
 export function DesktopHome({ products, go, openProduct, addToCart }) {
   const loading   = useProductsLoading();
@@ -29,6 +30,7 @@ export function DesktopHome({ products, go, openProduct, addToCart }) {
             filter: 'drop-shadow(0 30px 60px rgba(0,0,0,0.5))',
           }} />
           <div style={{ position: 'relative', maxWidth: 600 }}>
+            <FadeIn y={24}>
             <div style={{ fontSize: 11, color: '#f5b528', fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', marginBottom: 16 }}>
               Tabacaria · Recife · 2017
             </div>
@@ -57,20 +59,21 @@ export function DesktopHome({ products, go, openProduct, addToCart }) {
                 <Icon.whatsapp size={14}/> Falar no Whats
               </a>
             </div>
+            </FadeIn>
           </div>
         </div>
       </section>
 
       <section style={{ padding: '60px 36px 20px', maxWidth: 1440, margin: '0 auto' }}>
-        <SectionHeader title="Navegue por categoria" />
+        <FadeIn><SectionHeader title="Navegue por categoria" /></FadeIn>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
-          {CATEGORIES.slice(1).map(c => (
-            <button key={c.id} onClick={() => go('catalog', { cat: c.id })} className="r-card" style={{
-              padding: '22px 20px',
+          {CATEGORIES.slice(1).map((c, i) => (
+            <FadeIn key={c.id} delay={i * 50}>
+            <button onClick={() => go('catalog', { cat: c.id })} className="r-card r-card-lift" style={{
+              padding: '22px 20px', width: '100%',
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               cursor: 'pointer', background: 'var(--bg-elev)', color: 'var(--ink)',
-              transition: 'transform .12s',
-            }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-3px)'} onMouseLeave={e => e.currentTarget.style.transform = ''}>
+            }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                 <div style={{
                   width: 44, height: 44, borderRadius: 10,
@@ -88,31 +91,36 @@ export function DesktopHome({ products, go, openProduct, addToCart }) {
               </div>
               <Icon.arrow size={16} style={{ color: 'var(--ink-mute)' }}/>
             </button>
+            </FadeIn>
           ))}
         </div>
       </section>
 
       <section style={{ padding: '40px 36px 20px', maxWidth: 1440, margin: '0 auto' }}>
-        <SectionHeader title="Mais vendidos" sub="O que tá saindo da prateleira" />
+        <FadeIn><SectionHeader title="Mais vendidos" sub="O que tá saindo da prateleira" /></FadeIn>
         {loading ? (
           <SkeletonGrid count={4} columns={4} gap={16} />
         ) : tops.length > 0 ? (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-            {tops.map(p => (
-              <ProductCard key={p.id} product={p} onTap={() => openProduct(p)} addToCart={addToCart} />
+            {tops.map((p, i) => (
+              <FadeIn key={p.id} delay={i * 60} style={{ height: '100%' }}>
+                <ProductCard product={p} onTap={() => openProduct(p)} addToCart={addToCart} />
+              </FadeIn>
             ))}
           </div>
         ) : null}
       </section>
 
       <section style={{ padding: '40px 36px 80px', maxWidth: 1440, margin: '0 auto' }}>
-        <SectionHeader title="Novidades" sub="Chegaram essa semana" />
+        <FadeIn><SectionHeader title="Novidades" sub="Chegaram essa semana" /></FadeIn>
         {loading ? (
           <SkeletonGrid count={4} columns={4} gap={16} />
         ) : novidades.length > 0 ? (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-            {novidades.slice(0, 4).map(p => (
-              <ProductCard key={p.id} product={p} onTap={() => openProduct(p)} addToCart={addToCart} />
+            {novidades.slice(0, 4).map((p, i) => (
+              <FadeIn key={p.id} delay={i * 60} style={{ height: '100%' }}>
+                <ProductCard product={p} onTap={() => openProduct(p)} addToCart={addToCart} />
+              </FadeIn>
             ))}
           </div>
         ) : null}

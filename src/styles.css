@@ -119,6 +119,18 @@ html, body { background: #0c0c0a; }
   border-radius: var(--card-radius);
 }
 
+/* card image zoom on hover */
+.r-img-wrap { overflow: hidden; }
+.r-img-wrap > * { transition: transform 0.45s ease; }
+.r-card:hover .r-img-wrap > * { transform: scale(1.05); }
+
+/* card lift on hover */
+.r-card-lift { transition: transform 0.16s ease, box-shadow 0.16s ease; }
+.r-card-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--card-shadow), 0 10px 28px rgba(0,0,0,0.3);
+}
+
 /* utility scrollbar hide */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; }

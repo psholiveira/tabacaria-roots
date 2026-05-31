@@ -1,6 +1,7 @@
 ﻿// mobile/Shell.jsx — Status bar, age gate, bottom nav
 
 import { Icon } from '../components/Icons.jsx';
+import { FadeIn } from '../components/FadeIn.jsx';
 
 export function AgeGate({ onConfirm }) {
   return (
@@ -130,13 +131,15 @@ export function MobileHeader({ title, onBack, right }) {
 
 export function Section({ title, subtitle, children }) {
   return (
-    <div style={{ padding: '24px 0 4px' }}>
-      <div style={{ padding: '0 16px 12px' }}>
-        <h3 className="display" style={{ fontSize: 18, margin: 0, letterSpacing: '0.02em' }}>{title}</h3>
-        {subtitle ? <div style={{ fontSize: 11, color: 'var(--ink-mute)', marginTop: 3 }}>{subtitle}</div> : null}
+    <FadeIn>
+      <div style={{ padding: '24px 0 4px' }}>
+        <div style={{ padding: '0 16px 12px' }}>
+          <h3 className="display" style={{ fontSize: 18, margin: 0, letterSpacing: '0.02em' }}>{title}</h3>
+          {subtitle ? <div style={{ fontSize: 11, color: 'var(--ink-mute)', marginTop: 3 }}>{subtitle}</div> : null}
+        </div>
+        {children}
       </div>
-      {children}
-    </div>
+    </FadeIn>
   );
 }
 

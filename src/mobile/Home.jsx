@@ -7,6 +7,7 @@ import { SkeletonGrid } from '../components/SkeletonCard.jsx';
 import { useProductsLoading } from '../store/products.js';
 import { isStoreOpen, getCloseTimeLabel } from '../config.js';
 import { Section } from './Shell.jsx';
+import { FadeIn } from '../components/FadeIn.jsx';
 
 export function MobileHome({ products, go, addToCart, openProduct, cartCount = 0 }) {
   const loading = useProductsLoading();
@@ -44,6 +45,7 @@ export function MobileHome({ products, go, addToCart, openProduct, cartCount = 0
           </button>
         </div>
 
+        <FadeIn delay={60}>
         <div style={{
           background: '#0d3d1d',
           borderRadius: 16, padding: '22px 20px 24px',
@@ -73,8 +75,10 @@ export function MobileHome({ products, go, addToCart, openProduct, cartCount = 0
             opacity: 0.5,
           }}/>
         </div>
+        </FadeIn>
       </div>
 
+      <FadeIn delay={100}>
       <div style={{ padding: '8px 0 4px' }}>
         <div style={{ padding: '0 16px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
           <h3 className="display" style={{ fontSize: 12, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink-dim)', margin: 0 }}>Categorias</h3>
@@ -104,6 +108,7 @@ export function MobileHome({ products, go, addToCart, openProduct, cartCount = 0
           ))}
         </div>
       </div>
+      </FadeIn>
 
       <Section title="Mais vendidos" subtitle="Top da casa">
         <div style={{ padding: '0 16px' }}>

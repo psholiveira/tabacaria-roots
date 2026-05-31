@@ -77,7 +77,7 @@ export function DesktopApp() {
   return (
     <div className="roots-app" style={{ minHeight: '100dvh' }}>
       <DesktopHeader cart={cart} go={go} screen={screen} onOpenCart={() => setCartOpen(true)} />
-      <div>
+      <div key={screen} style={{ animation: 'page-enter 0.28s ease-out' }}>
         {screen === 'home' && <DesktopHome products={products} go={go} openProduct={openProduct} addToCart={addToCart} />}
         {screen === 'catalog' && <DesktopCatalog products={products} initialCat={params.cat} openProduct={openProduct} addToCart={addToCart} />}
         {screen === 'product' && product && <DesktopProduct products={products} product={product} go={go} openProduct={openProduct} addToCart={addToCart} />}

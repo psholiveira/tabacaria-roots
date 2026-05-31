@@ -79,7 +79,7 @@ export function MobileApp() {
 
   return (
     <div className="roots-app" style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-      <div style={{ flex: 1, maxWidth: 480, width: '100%', margin: '0 auto' }}>
+      <div key={screen} style={{ flex: 1, maxWidth: 480, width: '100%', margin: '0 auto', animation: 'page-enter 0.24s ease-out' }}>
         {screen === 'home' && (
           <MobileHome products={products} go={go} addToCart={addToCart} openProduct={openProduct} cartCount={cart.count} />
         )}
