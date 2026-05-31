@@ -7,14 +7,31 @@ import { ProductImage } from '../components/ProductImage.jsx';
 import { ProductCard } from '../components/ProductCard.jsx';
 import { MobileHeader } from './Shell.jsx';
 
-export function MobileProduct({ products, product, addToCart, onBack, openProduct }) {
+export function MobileProduct({ products, product, addToCart, onBack, openProduct, go, cartCount = 0 }) {
   const [variation, setVariation] = useState(product.variations?.[0] || '');
   const [qty, setQty] = useState(1);
   const related = products.filter(p => p.cat === product.cat && p.id !== product.id).slice(0, 3);
 
   return (
     <div style={{ paddingBottom: 110 }}>
-      <MobileHeader title="" onBack={onBack} />
+      <MobileHeader title="" onBack={onBack} right={
+        <button onClick={() => go('cart')} style={{
+          width: 36, height: 36, borderRadius: 999, border: '1px solid var(--line)',
+          background: 'var(--bg-elev)', color: 'var(--ink)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+          position: 'relative',
+        }}>
+          <Icon.cart size={16}/>
+          {cartCount > 0 && (
+            <span style={{
+              position: 'absolute', top: 4, right: 4,
+              background: 'var(--rasta-red)', color: '#fff',
+              fontSize: 9, fontWeight: 700, padding: '2px 4px', borderRadius: 99,
+              minWidth: 14, textAlign: 'center', lineHeight: 1,
+            }}>{cartCount}</span>
+          )}
+        </button>
+      }/>
 
       <div style={{ padding: '0 16px 16px' }}>
         <div style={{ borderRadius: 16, overflow: 'hidden' }}>

@@ -8,7 +8,7 @@ import { useProductsLoading } from '../store/products.js';
 import { isStoreOpen, getCloseTimeLabel } from '../config.js';
 import { Section } from './Shell.jsx';
 
-export function MobileHome({ products, go, addToCart, openProduct }) {
+export function MobileHome({ products, go, addToCart, openProduct, cartCount = 0 }) {
   const loading = useProductsLoading();
 
   const bestSellers = products.filter(p => p.bestseller).slice(0, 4);
@@ -30,8 +30,17 @@ export function MobileHome({ products, go, addToCart, openProduct }) {
             width: 40, height: 40, borderRadius: 999,
             border: '1px solid var(--line)', background: 'var(--bg-elev)', color: 'var(--ink)',
             display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+            position: 'relative',
           }}>
             <Icon.cart size={18}/>
+            {cartCount > 0 && (
+              <span style={{
+                position: 'absolute', top: 4, right: 4,
+                background: 'var(--rasta-red)', color: '#fff',
+                fontSize: 9, fontWeight: 700, padding: '2px 4px', borderRadius: 99,
+                minWidth: 14, textAlign: 'center', lineHeight: 1,
+              }}>{cartCount}</span>
+            )}
           </button>
         </div>
 

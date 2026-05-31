@@ -61,7 +61,7 @@ export function MobileApp() {
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
 
-  const go = (s, p = {}) => { setHash(s, p); setScreen(s); setParams(p); window.scrollTo(0, 0); };
+  const go = (s, p = {}) => { if (s !== 'checkout') setHash(s, p); setScreen(s); setParams(p); window.scrollTo(0, 0); };
   const openProduct = (p) => { setHash('product', {}, p.id); setProduct(p); setScreen('product'); window.scrollTo(0, 0); };
 
   const confirmAge = () => {
@@ -77,7 +77,7 @@ export function MobileApp() {
     <div className="roots-app" style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
       <div style={{ flex: 1, maxWidth: 480, width: '100%', margin: '0 auto' }}>
         {screen === 'home' && (
-          <MobileHome products={products} go={go} addToCart={(p,v) => cart.add(p,v)} openProduct={openProduct} />
+          <MobileHome products={products} go={go} addToCart={(p,v) => cart.add(p,v)} openProduct={openProduct} cartCount={cart.count} />
         )}
         {screen === 'catalog' && (
           <MobileCatalog
@@ -86,6 +86,8 @@ export function MobileApp() {
             addToCart={(p,v) => cart.add(p,v)}
             openProduct={openProduct}
             onBack={() => go('home')}
+            go={go}
+            cartCount={cart.count}
           />
         )}
         {screen === 'product' && product && (
@@ -95,6 +97,8 @@ export function MobileApp() {
             addToCart={(p,v) => cart.add(p,v)}
             openProduct={openProduct}
             onBack={() => go('catalog')}
+            go={go}
+            cartCount={cart.count}
           />
         )}
         {screen === 'cart' && (
