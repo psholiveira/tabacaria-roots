@@ -58,7 +58,7 @@ export function CartToast({ product, onClose, onViewCart, mobile = false }) {
           background: 'var(--accent)', color: 'var(--accent-ink)',
           border: 'none', borderRadius: 8, padding: '8px 13px',
           fontSize: 11.5, fontWeight: 700, cursor: 'pointer', flexShrink: 0,
-          fontFamily: 'Space Grotesk, sans-serif', letterSpacing: '0.02em',
+          fontFamily: 'Inter, sans-serif', letterSpacing: '0.02em',
         }}
       >
         Ver sacola

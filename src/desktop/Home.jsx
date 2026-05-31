@@ -52,7 +52,7 @@ export function DesktopHome({ products, go, openProduct, addToCart }) {
               </button>
               <a href={`https://wa.me/${STORE_INFO.whatsapp}`} target="_blank" rel="noreferrer" style={{
                 padding: '16px 24px', borderRadius: 999, border: '2px solid rgba(255,255,255,0.3)',
-                background: 'transparent', color: '#fff', fontFamily: 'Space Grotesk', fontWeight: 700,
+                background: 'transparent', color: '#fff', fontFamily: 'Inter', fontWeight: 700,
                 fontSize: 13, letterSpacing: '0.04em', textTransform: 'uppercase', textDecoration: 'none',
                 display: 'flex', alignItems: 'center', gap: 8,
               }}>

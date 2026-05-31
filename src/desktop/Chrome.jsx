@@ -31,7 +31,7 @@ export function DesktopHeader({ cart, go, screen, onOpenCart }) {
               color: screen === t.id ? 'var(--ink)' : 'var(--ink-dim)',
               padding: '8px 14px', borderRadius: 8,
               fontSize: 13, fontWeight: screen === t.id ? 700 : 500, cursor: 'pointer',
-              fontFamily: 'Space Grotesk',
+              fontFamily: 'Inter',
             }}>
               {t.label}
             </button>

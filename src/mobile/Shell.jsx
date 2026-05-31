@@ -47,7 +47,7 @@ export function AgeGate({ onConfirm }) {
           </button>
           <button onClick={() => { window.location.href = 'https://google.com'; }} style={{
             width: '100%', padding: '14px', marginTop: 10, background: 'transparent', border: 'none',
-            color: '#76705e', fontSize: 13, fontFamily: 'Space Grotesk, sans-serif', cursor: 'pointer',
+            color: '#76705e', fontSize: 13, fontFamily: 'Inter, sans-serif', cursor: 'pointer',
           }}>
             Não tenho 18 anos
           </button>
