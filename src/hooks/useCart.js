@@ -38,7 +38,7 @@ export function buildWhatsAppLink({ items, total, customer, delivery }) {
   const lines = [];
   lines.push('*PEDIDO ROOTS TABACARIA*');
   lines.push('');
-  lines.push(`👤 ${customer.name || '—'}`);
+  lines.push(` ${customer.name || '—'}`);
   lines.push('');
   lines.push('*Itens:*');
   items.forEach(i => {
@@ -49,9 +49,9 @@ export function buildWhatsAppLink({ items, total, customer, delivery }) {
   lines.push(`*Total:* ${formatBRL(total)}`);
   lines.push('');
   if (delivery.mode === 'retirada') {
-    lines.push(`📦 *Retirada na loja* — Av. Conde da Boa Vista, 247 ou Rua do Hospício, 250`);
+    lines.push(` *Retirada na loja* — Av. Conde da Boa Vista, 247 ou Rua do Hospício, 250`);
   } else {
-    lines.push(`🛵 *Entrega via motoboy:* ${delivery.address || '—'}`);
+    lines.push(` *Entrega via motoboy:* ${delivery.address || '—'}`);
     if (delivery.notes) lines.push(`Obs: ${delivery.notes}`);
     lines.push(`Taxa de entrega: a combinar`);
   }
