@@ -10,6 +10,9 @@ import { DesktopProduct } from './Product.jsx';
 import { DesktopStore } from './Store.jsx';
 import { DesktopCartDrawer } from './CartDrawer.jsx';
 import { CartToast } from '../components/CartToast.jsx';
+import { AgeGate } from '../mobile/Shell.jsx';
+
+const AGE_KEY = 'roots:age-confirmed';
 
 function parseHash() {
   const [s, param] = window.location.hash.slice(1).split('/');
@@ -32,6 +35,9 @@ export function DesktopApp() {
   const [params, setParams] = useState(initial.params);
   const [product, setProduct] = useState(null);
   const [pendingId, setPendingId] = useState(initial.productId);
+  const [ageOk, setAgeOk] = useState(() => {
+    try { return localStorage.getItem(AGE_KEY) === '1'; } catch { return false; }
+  });
   const [cartOpen, setCartOpen] = useState(false);
   const [toast, setToast] = useState(null);
   const cart = useCart();
@@ -60,6 +66,13 @@ export function DesktopApp() {
   const go = (s, p = {}) => { setHash(s, p); setScreen(s); setParams(p); window.scrollTo(0, 0); };
   const openProduct = (p) => { setHash('product', {}, p.id); setProduct(p); setScreen('product'); window.scrollTo(0, 0); };
   const addToCart = (p, v) => { cart.add(p, v); setToast({ product: p, id: Date.now() }); };
+
+  const confirmAge = () => {
+    try { localStorage.setItem(AGE_KEY, '1'); } catch {}
+    setAgeOk(true);
+  };
+
+  if (!ageOk) return <AgeGate onConfirm={confirmAge} />;
 
   return (
     <div className="roots-app" style={{ minHeight: '100dvh' }}>
