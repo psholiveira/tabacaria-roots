@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useCart } from '../hooks/useCart.js';
 import { useProducts } from '../store/products.js';
 import { AgeGate, BottomNav } from './Shell.jsx';
+import { CartToast } from '../components/CartToast.jsx';
 import { MobileHome } from './Home.jsx';
 import { MobileCatalog } from './Catalog.jsx';
 import { MobileProduct } from './Product.jsx';
@@ -38,8 +39,11 @@ export function MobileApp() {
   const [ageOk, setAgeOk] = useState(() => {
     try { return localStorage.getItem(AGE_KEY) === '1'; } catch { return false; }
   });
+  const [toast, setToast] = useState(null);
   const cart = useCart();
   const products = useProducts();
+
+  const addToCart = (p, v) => { cart.add(p, v); setToast({ product: p, id: Date.now() }); };
 
   // Restaura produto pelo ID quando os produtos carregam
   useEffect(() => {
@@ -77,13 +81,13 @@ export function MobileApp() {
     <div className="roots-app" style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
       <div style={{ flex: 1, maxWidth: 480, width: '100%', margin: '0 auto' }}>
         {screen === 'home' && (
-          <MobileHome products={products} go={go} addToCart={(p,v) => cart.add(p,v)} openProduct={openProduct} cartCount={cart.count} />
+          <MobileHome products={products} go={go} addToCart={addToCart} openProduct={openProduct} cartCount={cart.count} />
         )}
         {screen === 'catalog' && (
           <MobileCatalog
             products={products}
             initialCat={params.cat}
-            addToCart={(p,v) => cart.add(p,v)}
+            addToCart={addToCart}
             openProduct={openProduct}
             onBack={() => go('home')}
             go={go}
@@ -94,7 +98,7 @@ export function MobileApp() {
           <MobileProduct
             products={products}
             product={product}
-            addToCart={(p,v) => cart.add(p,v)}
+            addToCart={addToCart}
             openProduct={openProduct}
             onBack={() => go('catalog')}
             go={go}
@@ -112,6 +116,15 @@ export function MobileApp() {
         )}
       </div>
       {showNav && <BottomNav active={screen} onNav={go} cartCount={cart.count} />}
+      {toast && (
+        <CartToast
+          key={toast.id}
+          product={toast.product}
+          onClose={() => setToast(null)}
+          onViewCart={() => { setToast(null); go('cart'); }}
+          mobile={true}
+        />
+      )}
     </div>
   );
 }

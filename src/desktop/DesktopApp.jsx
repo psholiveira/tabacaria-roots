@@ -9,6 +9,7 @@ import { DesktopCatalog } from './Catalog.jsx';
 import { DesktopProduct } from './Product.jsx';
 import { DesktopStore } from './Store.jsx';
 import { DesktopCartDrawer } from './CartDrawer.jsx';
+import { CartToast } from '../components/CartToast.jsx';
 
 function parseHash() {
   const [s, param] = window.location.hash.slice(1).split('/');
@@ -32,6 +33,7 @@ export function DesktopApp() {
   const [product, setProduct] = useState(null);
   const [pendingId, setPendingId] = useState(initial.productId);
   const [cartOpen, setCartOpen] = useState(false);
+  const [toast, setToast] = useState(null);
   const cart = useCart();
   const products = useProducts();
 
@@ -57,7 +59,7 @@ export function DesktopApp() {
 
   const go = (s, p = {}) => { setHash(s, p); setScreen(s); setParams(p); window.scrollTo(0, 0); };
   const openProduct = (p) => { setHash('product', {}, p.id); setProduct(p); setScreen('product'); window.scrollTo(0, 0); };
-  const addToCart = (p, v) => { cart.add(p, v); setCartOpen(true); };
+  const addToCart = (p, v) => { cart.add(p, v); setToast({ product: p, id: Date.now() }); };
 
   return (
     <div className="roots-app" style={{ minHeight: '100dvh' }}>
@@ -70,6 +72,15 @@ export function DesktopApp() {
       </div>
       <DesktopFooter go={go} />
       {cartOpen && <DesktopCartDrawer cart={cart} onClose={() => setCartOpen(false)} />}
+      {toast && (
+        <CartToast
+          key={toast.id}
+          product={toast.product}
+          onClose={() => setToast(null)}
+          onViewCart={() => { setToast(null); setCartOpen(true); }}
+          mobile={false}
+        />
+      )}
     </div>
   );
 }

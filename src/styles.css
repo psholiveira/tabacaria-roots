@@ -332,6 +332,14 @@ html, body { background: #0c0c0a; }
   0%   { transform: translateX(-100%); }
   100% { transform: translateX(100%);  }
 }
+@keyframes toast-slide-up {
+  from { transform: translateY(14px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes toast-slide-in {
+  from { transform: translateX(14px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
 [data-theme="light"] .skel::after {
   background: linear-gradient(
     90deg,
