@@ -7,10 +7,9 @@ import { SkeletonGrid } from '../components/SkeletonCard.jsx';
 import { useProductsLoading } from '../store/products.js';
 import { Label } from '../mobile/Shell.jsx';
 
-export function DesktopCatalog({ products, initialCat, openProduct, addToCart }) {
+export function DesktopCatalog({ products, initialCat, openProduct, addToCart, q = '', setQ }) {
   const loading = useProductsLoading();
   const [cat, setCat] = useState(initialCat || 'all');
-  const [q, setQ] = useState('');
   const [sort, setSort] = useState('relevance');
   const [priceId, setPriceId] = useState('p-all');
 

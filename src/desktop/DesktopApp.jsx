@@ -40,6 +40,7 @@ export function DesktopApp() {
   });
   const [cartOpen, setCartOpen] = useState(false);
   const [toast, setToast] = useState(null);
+  const [catalogQ, setCatalogQ] = useState('');
   const cart = useCart();
   const products = useProducts();
 
@@ -63,7 +64,7 @@ export function DesktopApp() {
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
 
-  const go = (s, p = {}) => { setHash(s, p); setScreen(s); setParams(p); window.scrollTo(0, 0); };
+  const go = (s, p = {}) => { setHash(s, p); setScreen(s); setParams(p); if (s !== 'catalog') setCatalogQ(''); window.scrollTo(0, 0); };
   const openProduct = (p) => { setHash('product', {}, p.id); setProduct(p); setScreen('product'); window.scrollTo(0, 0); };
   const addToCart = (p, v) => { cart.add(p, v); setToast({ product: p, id: Date.now() }); };
 
@@ -76,10 +77,10 @@ export function DesktopApp() {
 
   return (
     <div className="roots-app" style={{ minHeight: '100dvh' }}>
-      <DesktopHeader cart={cart} go={go} screen={screen} onOpenCart={() => setCartOpen(true)} />
+      <DesktopHeader cart={cart} go={go} screen={screen} onOpenCart={() => setCartOpen(true)} searchQ={catalogQ} onSearchQ={setCatalogQ} />
       <div key={screen} style={{ animation: 'page-enter 0.28s ease-out' }}>
         {screen === 'home' && <DesktopHome products={products} go={go} openProduct={openProduct} addToCart={addToCart} />}
-        {screen === 'catalog' && <DesktopCatalog products={products} initialCat={params.cat} openProduct={openProduct} addToCart={addToCart} />}
+        {screen === 'catalog' && <DesktopCatalog products={products} initialCat={params.cat} openProduct={openProduct} addToCart={addToCart} q={catalogQ} setQ={setCatalogQ} />}
         {screen === 'product' && product && <DesktopProduct products={products} product={product} go={go} openProduct={openProduct} addToCart={addToCart} />}
         {screen === 'store' && <DesktopStore />}
       </div>

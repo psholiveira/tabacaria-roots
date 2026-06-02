@@ -3,7 +3,7 @@
 import { STORE_INFO, formatBRL } from '../data.js';
 import { Icon } from '../components/Icons.jsx';
 
-export function DesktopHeader({ cart, go, screen, onOpenCart }) {
+export function DesktopHeader({ cart, go, screen, onOpenCart, searchQ = '', onSearchQ }) {
   return (
     <header style={{
       position: 'sticky', top: 0, zIndex: 40,
@@ -41,7 +41,10 @@ export function DesktopHeader({ cart, go, screen, onOpenCart }) {
         <div style={{ flex: 1, maxWidth: 380, position: 'relative' }}>
           <Icon.search size={14} style={{ position: 'absolute', left: 14, top: 12, color: 'var(--ink-mute)' }}/>
           <input className="r-input" placeholder="Tabaco, piteira, seda..." style={{ paddingLeft: 38, padding: '10px 14px 10px 38px', fontSize: 13 }}
-            onFocus={() => go('catalog')} readOnly/>
+            value={screen === 'catalog' ? searchQ : ''}
+            onChange={screen === 'catalog' ? (e) => onSearchQ(e.target.value) : undefined}
+            onFocus={screen !== 'catalog' ? () => go('catalog') : undefined}
+            readOnly={screen !== 'catalog'}/>
         </div>
 
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
