@@ -22,6 +22,9 @@ export function getLoading()  { return _loading; }
 
 // ─── Mappers DB ↔ JS ──────────────────────────────────────────────────────
 function fromDb(row) {
+  const photos = row.photos?.length > 0
+    ? row.photos
+    : (row.photo ? [row.photo] : []);
   return {
     id:         row.id,
     name:       row.name,
@@ -32,7 +35,8 @@ function fromDb(row) {
     desc:       row.description ?? '',
     variations: row.variations ?? [],
     tags:       row.tags       ?? [],
-    photo:      row.photo      ?? null,
+    photo:      photos[0]      || null,
+    photos:     photos,
     rating:     Number(row.rating)  || 5.0,
     ratings:    Number(row.ratings) || 0,
     bestseller: Boolean(row.bestseller),
@@ -40,6 +44,7 @@ function fromDb(row) {
 }
 
 function toDb(p) {
+  const photos = p.photos?.length > 0 ? p.photos : (p.photo ? [p.photo] : []);
   return {
     id:         p.id,
     name:       p.name,
@@ -50,7 +55,8 @@ function toDb(p) {
     description: p.desc      || '',
     variations: p.variations || [],
     tags:       p.tags       || [],
-    photo:      p.photo      || null,
+    photo:      photos[0]    || null,
+    photos:     photos,
     rating:     p.rating     || 5.0,
     ratings:    p.ratings    || 0,
     bestseller: Boolean(p.bestseller),

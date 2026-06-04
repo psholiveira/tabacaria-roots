@@ -25,7 +25,7 @@ export function DesktopProduct({ products, product, go, openProduct, addToCart }
 
       <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 50 }}>
         <div style={{ borderRadius: 18, overflow: 'hidden' }}>
-          <ProductImage product={product} size="lg" />
+          <ProductImage product={product} size="lg" carousel />
         </div>
 
         <div>

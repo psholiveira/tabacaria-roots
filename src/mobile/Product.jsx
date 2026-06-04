@@ -35,7 +35,7 @@ export function MobileProduct({ products, product, addToCart, onBack, openProduc
 
       <div style={{ padding: '0 16px 16px' }}>
         <div style={{ borderRadius: 16, overflow: 'hidden' }}>
-          <ProductImage product={product} size="lg" />
+          <ProductImage product={product} size="lg" carousel />
         </div>
       </div>
 

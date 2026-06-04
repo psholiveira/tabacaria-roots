@@ -1,5 +1,6 @@
-// components/ProductImage.jsx — placeholder por categoria, ou foto real
+// components/ProductImage.jsx — placeholder por categoria, ou foto real com carrossel
 
+import { useState, useRef } from 'react';
 import { CAT_COLORS } from '../data.js';
 
 const Silhouettes = {
@@ -53,25 +54,106 @@ const Silhouettes = {
   ),
 };
 
-export function ProductImage({ product, size = 'md', children }) {
+export function ProductImage({ product, size = 'md', carousel = false, children }) {
+  const allPhotos = product.photos?.length > 0
+    ? product.photos
+    : (product.photo ? [product.photo] : []);
+
+  const [idx, setIdx] = useState(0);
+  const touchX = useRef(null);
+
   const c = CAT_COLORS[product.cat] || '#3a3a35';
   const heights = { sm: 110, md: 180, lg: 320 };
   const h = heights[size] || heights.md;
 
-  if (product.photo) {
+  const multi = carousel && allPhotos.length > 1;
+
+  const prev = (e) => {
+    e.stopPropagation();
+    setIdx(i => (i - 1 + allPhotos.length) % allPhotos.length);
+  };
+  const next = (e) => {
+    e.stopPropagation();
+    setIdx(i => (i + 1) % allPhotos.length);
+  };
+
+  const onTouchStart = (e) => { touchX.current = e.touches[0].clientX; };
+  const onTouchEnd   = (e) => {
+    if (touchX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchX.current;
+    if (Math.abs(dx) > 40) {
+      if (dx < 0) setIdx(i => (i + 1) % allPhotos.length);
+      else        setIdx(i => (i - 1 + allPhotos.length) % allPhotos.length);
+    }
+    touchX.current = null;
+  };
+
+  if (allPhotos.length > 0) {
     return (
-      <div style={{
-        width: '100%', borderRadius: 'inherit',
-        background: 'var(--bg-elev-2)',
-        position: 'relative', overflow: 'hidden',
-      }}>
-        <img src={product.photo} alt={product.name} style={{
-          display: 'block', width: '100%', height: 'auto',
-        }}/>
+      <div
+        style={{
+          width: '100%', borderRadius: 'inherit',
+          background: 'var(--bg-elev-2)',
+          position: 'relative', overflow: 'hidden',
+          userSelect: 'none',
+        }}
+        onTouchStart={multi ? onTouchStart : undefined}
+        onTouchEnd={multi ? onTouchEnd : undefined}
+      >
+        <img
+          src={allPhotos[idx]}
+          alt={product.name}
+          style={{ display: 'block', width: '100%', height: 'auto', pointerEvents: 'none' }}
+        />
         <div style={{
-          position:'absolute', top:0, left:0, width: 8, height: '100%',
+          position: 'absolute', top: 0, left: 0, width: 8, height: '100%',
           background: 'linear-gradient(180deg, var(--rasta-green) 0 33.33%, var(--rasta-gold) 33.33% 66.66%, var(--rasta-red) 66.66% 100%)',
         }}/>
+
+        {multi && (
+          <>
+            <button onClick={prev} style={{
+              position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)',
+              width: 34, height: 34, borderRadius: 99,
+              background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(255,255,255,0.15)',
+              color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 22, fontWeight: 700, zIndex: 2, lineHeight: 1,
+            }}>‹</button>
+            <button onClick={next} style={{
+              position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
+              width: 34, height: 34, borderRadius: 99,
+              background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(255,255,255,0.15)',
+              color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 22, fontWeight: 700, zIndex: 2, lineHeight: 1,
+            }}>›</button>
+
+            <div style={{
+              position: 'absolute', bottom: 10, left: 0, right: 0,
+              display: 'flex', justifyContent: 'center', gap: 5, zIndex: 2,
+            }}>
+              {allPhotos.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={(e) => { e.stopPropagation(); setIdx(i); }}
+                  style={{
+                    width: i === idx ? 18 : 6, height: 6, borderRadius: 99,
+                    background: i === idx ? 'var(--rasta-gold)' : 'rgba(255,255,255,0.4)',
+                    border: 'none', cursor: 'pointer', padding: 0,
+                    transition: 'width 0.2s ease, background 0.2s ease',
+                  }}
+                />
+              ))}
+            </div>
+
+            <div style={{
+              position: 'absolute', top: 10, right: 10,
+              background: 'rgba(0,0,0,0.55)', borderRadius: 99,
+              padding: '2px 8px', fontSize: 11, color: '#fff', fontWeight: 600,
+              zIndex: 2,
+            }}>{idx + 1}/{allPhotos.length}</div>
+          </>
+        )}
+
         {children}
       </div>
     );
@@ -83,15 +165,15 @@ export function ProductImage({ product, size = 'md', children }) {
       background: `radial-gradient(circle at 30% 30%, ${c}40 0%, transparent 70%), var(--bg-elev-2)`,
     }}>
       <div style={{
-        position:'absolute', top:0, left:0, width: 14, height: '100%',
+        position: 'absolute', top: 0, left: 0, width: 14, height: '100%',
         background: 'linear-gradient(180deg, var(--rasta-green) 0 33.33%, var(--rasta-gold) 33.33% 66.66%, var(--rasta-red) 66.66% 100%)',
         opacity: 0.85,
       }}/>
-      <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center' }}>
+      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {Silhouettes[product.cat] || null}
       </div>
       <div style={{
-        position:'absolute', left: 22, bottom: 10, right: 10,
+        position: 'absolute', left: 22, bottom: 10, right: 10,
         fontFamily: 'Bebas Neue, sans-serif',
         fontSize: 11, letterSpacing: '0.16em',
         color: 'rgba(255,255,255,0.45)',

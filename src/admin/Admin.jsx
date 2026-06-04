@@ -312,7 +312,7 @@ function AdminForm({ product, onSave, onCancel, onError }) {
   const [form, setForm] = useState(product || {
     id: newProductId(),
     name: '', cat: 'narguile', brand: '', price: 0, oldPrice: null,
-    desc: '', variations: [], tags: [], photo: null,
+    desc: '', variations: [], tags: [], photo: null, photos: [],
     rating: 5.0, ratings: 0, bestseller: false,
   });
   const [newVar, setNewVar]         = useState('');
@@ -327,38 +327,50 @@ function AdminForm({ product, onSave, onCancel, onError }) {
     if (fieldErrors[k]) setFieldErrors(fe => ({ ...fe, [k]: null }));
   };
 
-  // Upload de foto para Supabase Storage
+  // Upload de fotos para Supabase Storage (suporta múltiplos arquivos)
   const onPhoto = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
 
     setPhotoError(null);
 
-    if (file.size > 5 * 1024 * 1024) {
-      setPhotoError('A imagem deve ter no máximo 5MB.');
-      return;
-    }
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-      setPhotoError('Formato inválido. Use JPG, PNG ou WEBP.');
-      return;
-    }
+    const MAX = 6;
+    const currentCount = form.photos?.length || 0;
+    const toUpload = files.slice(0, MAX - currentCount);
+    if (!toUpload.length) return;
 
     setUploading(true);
-    const ext  = file.name.split('.').pop();
-    const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    for (const file of toUpload) {
+      if (file.size > 5 * 1024 * 1024) {
+        setPhotoError('Imagem muito grande. Máximo 5MB por foto.');
+        continue;
+      }
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+        setPhotoError('Formato inválido. Use JPG, PNG ou WEBP.');
+        continue;
+      }
 
-    const { error: uploadError } = await supabase.storage
-      .from('products')
-      .upload(path, file, { cacheControl: '3600', upsert: false });
+      const ext  = file.name.split('.').pop();
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
-    if (uploadError) {
-      setPhotoError(`Erro no upload: ${uploadError.message}`);
-      setUploading(false);
-      return;
+      const { error: uploadError } = await supabase.storage
+        .from('products')
+        .upload(path, file, { cacheControl: '3600', upsert: false });
+
+      if (uploadError) {
+        setPhotoError(`Erro no upload: ${uploadError.message}`);
+        setUploading(false);
+        return;
+      }
+
+      const { data: { publicUrl } } = supabase.storage.from('products').getPublicUrl(path);
+      setForm(f => {
+        const updated = [...(f.photos || []), publicUrl];
+        return { ...f, photos: updated, photo: updated[0] };
+      });
     }
 
-    const { data: { publicUrl } } = supabase.storage.from('products').getPublicUrl(path);
-    upd('photo', publicUrl);
+    e.target.value = '';
     setUploading(false);
   };
 
@@ -441,7 +453,12 @@ function AdminForm({ product, onSave, onCancel, onError }) {
 
       <div style={{ padding: '28px', display: 'grid', gridTemplateColumns: '300px 1fr', gap: 28, maxWidth: 1100, margin: '0 auto' }}>
         <div>
-          <FieldLabel>Foto do produto</FieldLabel>
+          <FieldLabel>Fotos do produto</FieldLabel>
+          <div style={{ fontSize: 11, color: 'var(--ink-mute)', marginTop: 4 }}>
+            {(form.photos || []).length === 0
+              ? 'Nenhuma foto. A primeira adicionada será a capa.'
+              : `${(form.photos || []).length}/6 foto(s) · A primeira é a capa`}
+          </div>
 
           {photoError && (
             <div style={{
@@ -454,49 +471,68 @@ function AdminForm({ product, onSave, onCancel, onError }) {
           )}
 
           <div style={{
-            marginTop: 8, aspectRatio: '1', borderRadius: 12, overflow: 'hidden',
-            border: '2px dashed var(--line-strong)',
-            position: 'relative', background: 'var(--bg-elev)',
+            display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: 8, marginTop: 10,
           }}>
-            {uploading ? (
-              <div style={{
-                position: 'absolute', inset: 0,
-                display: 'flex', flexDirection: 'column',
-                alignItems: 'center', justifyContent: 'center',
-                gap: 8, color: 'var(--ink-mute)', fontSize: 12,
+            {(form.photos || []).map((url, i) => (
+              <div key={`${url}-${i}`} style={{
+                position: 'relative', aspectRatio: '1', borderRadius: 8,
+                overflow: 'hidden', border: '2px solid var(--line)',
               }}>
-                <div style={{
-                  width: 28, height: 28, border: '2px solid var(--accent)',
-                  borderTopColor: 'transparent', borderRadius: 99,
-                  animation: 'spin 0.8s linear infinite',
-                }}/>
-                Enviando...
-              </div>
-            ) : form.photo ? (
-              <>
-                <img src={form.photo} alt="preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
+                <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
+                {i === 0 && (
+                  <div style={{
+                    position: 'absolute', top: 4, left: 4,
+                    background: 'var(--rasta-green)', borderRadius: 4,
+                    padding: '2px 6px', fontSize: 9, fontWeight: 700,
+                    color: '#fff', letterSpacing: '0.1em',
+                  }}>CAPA</div>
+                )}
                 <button
-                  onClick={() => upd('photo', null)}
+                  onClick={() => {
+                    const updated = (form.photos || []).filter((_, j) => j !== i);
+                    setForm(f => ({ ...f, photos: updated, photo: updated[0] || null }));
+                  }}
                   style={{
-                    position: 'absolute', top: 8, right: 8,
+                    position: 'absolute', top: 4, right: 4,
                     background: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none',
-                    width: 28, height: 28, borderRadius: 99, cursor: 'pointer',
+                    width: 24, height: 24, borderRadius: 99, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}
                 >
-                  <Icon.close size={14}/>
+                  <Icon.close size={12}/>
                 </button>
-              </>
-            ) : (
+              </div>
+            ))}
+
+            {(form.photos || []).length < 6 && (
               <label style={{
-                position: 'absolute', inset: 0, display: 'flex',
-                flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer', color: 'var(--ink-mute)', gap: 8,
+                aspectRatio: '1', borderRadius: 8, border: '2px dashed var(--line-strong)',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                cursor: uploading ? 'wait' : 'pointer',
+                background: 'var(--bg-elev)', color: 'var(--ink-mute)', gap: 6,
+                position: 'relative',
               }}>
-                <Icon.plus size={28}/>
-                <div style={{ fontSize: 12, fontWeight: 600 }}>Adicionar foto</div>
-                <div style={{ fontSize: 10.5 }}>JPG, PNG, WEBP · máx 5MB</div>
-                <input type="file" accept="image/jpeg,image/png,image/webp" onChange={onPhoto}
-                  style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer' }}/>
+                {uploading ? (
+                  <div style={{
+                    width: 24, height: 24, border: '2px solid var(--accent)',
+                    borderTopColor: 'transparent', borderRadius: 99,
+                    animation: 'spin 0.8s linear infinite',
+                  }}/>
+                ) : (
+                  <>
+                    <Icon.plus size={22}/>
+                    <div style={{ fontSize: 11, fontWeight: 600, textAlign: 'center' }}>
+                      {(form.photos || []).length === 0 ? 'Adicionar foto' : 'Mais fotos'}
+                    </div>
+                    <div style={{ fontSize: 10, color: 'var(--ink-mute)' }}>JPG, PNG, WEBP · 5MB</div>
+                  </>
+                )}
+                <input
+                  type="file" accept="image/jpeg,image/png,image/webp"
+                  multiple onChange={onPhoto} disabled={uploading}
+                  style={{ position: 'absolute', inset: 0, opacity: 0, cursor: uploading ? 'wait' : 'pointer' }}
+                />
               </label>
             )}
           </div>
