@@ -78,10 +78,14 @@ export function filterProducts(products, { cat, q, priceRange, sort }) {
   if (cat && cat !== 'all') out = out.filter(p => p.cat === cat);
   if (q) {
     const ql = q.toLowerCase();
+    const matchingCatIds = CATEGORIES
+      .filter(c => c.id !== 'all' && c.label.toLowerCase().includes(ql))
+      .map(c => c.id);
     out = out.filter(p =>
       p.name.toLowerCase().includes(ql) ||
       (p.brand || '').toLowerCase().includes(ql) ||
-      (p.desc || '').toLowerCase().includes(ql)
+      (p.desc || '').toLowerCase().includes(ql) ||
+      matchingCatIds.includes(p.cat)
     );
   }
   if (priceRange) {
