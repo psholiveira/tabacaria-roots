@@ -218,6 +218,11 @@ html, body { background: #0c0c0a; }
 .r-input:focus { border-color: var(--accent); }
 .r-input::placeholder { color: var(--ink-mute); }
 
+/* evita zoom automático do Safari/iOS ao focar inputs em telas pequenas */
+@media (max-width: 767px) {
+  .r-input { font-size: 16px; }
+}
+
 /* placeholder image — lion silhouette stamp */
 .placeholder-img {
   background: var(--bg-elev-2);

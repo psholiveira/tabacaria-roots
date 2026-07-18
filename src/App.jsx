@@ -1,12 +1,12 @@
 // App.jsx — switch responsivo + roteamento por hash + auth admin
 
 import { useEffect, useState, lazy, Suspense } from 'react';
-import { BREAKPOINT_MOBILE } from './config.js';
 import { MobileApp }    from './mobile/MobileApp.jsx';
 import { DesktopApp }   from './desktop/DesktopApp.jsx';
 import { ErrorBoundary } from './components/ErrorBoundary.jsx';
 import { supabase }     from './lib/supabase.js';
 import { initProducts } from './store/products.js';
+import { useIsMobile }  from './hooks/useIsMobile.js';
 
 const AdminApp   = lazy(() => import('./admin/Admin.jsx').then(m => ({ default: m.AdminApp })));
 const AdminLogin = lazy(() => import('./admin/AdminLogin.jsx').then(m => ({ default: m.AdminLogin })));
@@ -19,16 +19,6 @@ function useHashRoute() {
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
   return hash;
-}
-
-function useIsMobile(breakpoint = BREAKPOINT_MOBILE) {
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth < breakpoint);
-  useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth < breakpoint);
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, [breakpoint]);
-  return isMobile;
 }
 
 // ─── Spinner compartilhado ────────────────────────────────────────────────

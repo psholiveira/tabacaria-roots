@@ -6,6 +6,7 @@ import { Icon } from '../components/Icons.jsx';
 import { ProductImage } from '../components/ProductImage.jsx';
 import { ProductCard } from '../components/ProductCard.jsx';
 import { supabase } from '../lib/supabase.js';
+import { useIsMobile } from '../hooks/useIsMobile.js';
 import {
   useProducts, useProductsLoading, upsertProduct, deleteProduct, newProductId,
 } from '../store/products.js';
@@ -14,6 +15,7 @@ import {
 export function AdminApp() {
   const products = useProducts();
   const loading  = useProductsLoading();
+  const isMobile = useIsMobile();
   const [editing, setEditing]     = useState(null);
   const [filter, setFilter]       = useState('');
   const [catFilter, setCatFilter] = useState('all');
@@ -64,6 +66,7 @@ const handleLogout = async () => {
       <>
         <AdminForm
           product={editing === 'new' ? null : editing}
+          isMobile={isMobile}
           onSave={(isNew) => { setEditing(null); showToast(isNew ? 'Produto cadastrado com sucesso!' : 'Produto atualizado com sucesso!'); }}
           onCancel={() => setEditing(null)}
           onError={(msg) => showToast(msg, 'error')}
@@ -81,8 +84,9 @@ const handleLogout = async () => {
       }}>
         <div className="rasta-stripe"/>
         <div style={{
-          padding: '16px 28px', display: 'flex', alignItems: 'center',
-          gap: 18, justifyContent: 'space-between', maxWidth: 1440, margin: '0 auto',
+          padding: isMobile ? '14px 16px' : '16px 28px', display: 'flex', alignItems: 'center',
+          gap: isMobile ? 10 : 18, justifyContent: 'space-between', maxWidth: 1440, margin: '0 auto',
+          flexWrap: 'wrap',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <img src="/assets/logo-roots-mark.png" alt="" style={{ width: 38, height: 38 }}/>
@@ -93,11 +97,11 @@ const handleLogout = async () => {
               </div>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
             <a href="#" style={{ fontSize: 11.5, color: 'var(--ink-dim)', textDecoration: 'none', padding: '8px 12px' }}>
               ← Voltar à loja
             </a>
-<button onClick={handleLogout} className="btn-ghost" style={{ fontSize: 11 }}>
+            <button onClick={handleLogout} className="btn-ghost" style={{ fontSize: 11 }}>
               Sair
             </button>
             <button
@@ -111,7 +115,7 @@ const handleLogout = async () => {
         </div>
       </header>
 
-      <div style={{ padding: '24px 28px', maxWidth: 1440, margin: '0 auto' }}>
+      <div style={{ padding: isMobile ? '18px 14px' : '24px 28px', maxWidth: 1440, margin: '0 auto' }}>
         {opError && (
           <div style={{
             background: 'rgba(180,40,40,0.1)', border: '1px solid var(--rasta-red)',
@@ -127,35 +131,106 @@ const handleLogout = async () => {
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 22 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: 12, marginBottom: 22 }}>
           <Stat label="Total"        value={stats.total}       color="var(--accent)"/>
           <Stat label="Em promoção"  value={stats.promo}       color="var(--rasta-red)"/>
           <Stat label="Novidades"    value={stats.novos}       color="var(--rasta-gold)"/>
           <Stat label="Best sellers" value={stats.bestsellers} color="var(--rasta-green)"/>
         </div>
 
-        <div style={{ display: 'flex', gap: 10, marginBottom: 18, alignItems: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 10, marginBottom: 18, alignItems: isMobile ? 'stretch' : 'center' }}>
           <input
             className="r-input" placeholder="Buscar produto..."
             value={filter} onChange={e => setFilter(e.target.value)}
-            style={{ flex: 1, fontSize: 13 }}
+            style={{ flex: 1, fontSize: isMobile ? 16 : 13 }}
           />
           <select
             className="r-input" value={catFilter}
             onChange={e => setCatFilter(e.target.value)}
-            style={{ width: 'auto', fontSize: 13 }}
+            style={{ width: isMobile ? '100%' : 'auto', fontSize: isMobile ? 16 : 13 }}
           >
             <option value="all">Todas categorias</option>
             {ADMIN_CATEGORIES.slice(1).map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
           </select>
         </div>
 
-        <div className="r-card" style={{ overflow: 'hidden' }}>
-          {loading ? (
-            <div style={{ padding: 40, textAlign: 'center', color: 'var(--ink-mute)', fontSize: 13 }}>
-              Carregando produtos...
-            </div>
-          ) : (
+        {loading ? (
+          <div className="r-card" style={{ padding: 40, textAlign: 'center', color: 'var(--ink-mute)', fontSize: 13 }}>
+            Carregando produtos...
+          </div>
+        ) : isMobile ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {items.map(p => (
+              <div key={p.id} className="r-card" style={{ padding: 12, display: 'flex', gap: 12 }}>
+                <div style={{ width: 56, height: 56, borderRadius: 8, overflow: 'hidden', flexShrink: 0 }}>
+                  <ProductImage product={p} size="sm"/>
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
+                      <div style={{ fontSize: 11, color: 'var(--ink-mute)', marginTop: 2 }}>
+                        {p.brand} · {CATEGORIES.find(c => c.id === p.cat)?.label || p.cat}
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                      <div style={{ fontWeight: 700 }}>{formatBRL(p.price)}</div>
+                      {p.oldPrice && (
+                        <div style={{ fontSize: 10, color: 'var(--ink-mute)', textDecoration: 'line-through' }}>
+                          {formatBRL(p.oldPrice)}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8, gap: 8 }}>
+                    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                      {(p.tags || []).map(t => (
+                        <span key={t} className={`tag tag-${t === 'top' ? 'top' : t === 'novo' ? 'novo' : t === 'import' ? 'import' : 'promo'}`}>
+                          {t}
+                        </span>
+                      ))}
+                      {p.bestseller && <span className="tag tag-top">TOP</span>}
+                    </div>
+                    <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                      <button
+                        onClick={() => setEditing(p)}
+                        style={{
+                          background: 'transparent', border: '1px solid var(--line)',
+                          color: 'var(--ink)', padding: '6px 12px', borderRadius: 6,
+                          fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                        }}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => handleDelete(p)}
+                        style={{
+                          background: 'transparent', border: '1px solid var(--line)',
+                          color: 'var(--rasta-red)', padding: '6px 8px',
+                          borderRadius: 6, cursor: 'pointer',
+                        }}
+                      >
+                        <Icon.trash size={12}/>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {items.length === 0 && (
+              <div className="r-card" style={{ padding: 40, textAlign: 'center', color: 'var(--ink-mute)' }}>
+                Nenhum produto.{' '}
+                <button
+                  onClick={() => setEditing('new')}
+                  style={{ background: 'transparent', border: 'none', color: 'var(--accent)', cursor: 'pointer', fontWeight: 700 }}
+                >
+                  Cadastrar o primeiro
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="r-card" style={{ overflow: 'hidden' }}>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                 <thead>
@@ -245,8 +320,8 @@ const handleLogout = async () => {
                 </tbody>
               </table>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         <div style={{
           marginTop: 18, padding: 14, borderRadius: 10,
@@ -307,7 +382,7 @@ function validateForm(form) {
 }
 
 // ─── Formulário de produto ────────────────────────────────────────────────
-function AdminForm({ product, onSave, onCancel, onError }) {
+function AdminForm({ product, isMobile, onSave, onCancel, onError }) {
   const isNew = !product;
   const [form, setForm] = useState(product || {
     id: newProductId(),
@@ -419,7 +494,7 @@ function AdminForm({ product, onSave, onCancel, onError }) {
       <header style={{
         position: 'sticky', top: 0, zIndex: 30,
         background: 'var(--bg)', borderBottom: '1px solid var(--line)',
-        padding: '16px 28px',
+        padding: isMobile ? '14px 16px' : '16px 28px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
@@ -442,16 +517,23 @@ function AdminForm({ product, onSave, onCancel, onError }) {
             </div>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          {saving && <span style={{ fontSize: 12, color: 'var(--ink-mute)' }}>Salvando...</span>}
-          <button onClick={onCancel} className="btn-ghost" style={{ fontSize: 12 }}>Cancelar</button>
-          <button onClick={save} className="btn-primary" disabled={saving} style={{ padding: '10px 18px', fontSize: 12 }}>
-            {saving ? 'Salvando...' : 'Salvar'}
-          </button>
-        </div>
+        {!isMobile && (
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            {saving && <span style={{ fontSize: 12, color: 'var(--ink-mute)' }}>Salvando...</span>}
+            <button onClick={onCancel} className="btn-ghost" style={{ fontSize: 12 }}>Cancelar</button>
+            <button onClick={save} className="btn-primary" disabled={saving} style={{ padding: '10px 18px', fontSize: 12 }}>
+              {saving ? 'Salvando...' : 'Salvar'}
+            </button>
+          </div>
+        )}
       </header>
 
-      <div style={{ padding: '28px', display: 'grid', gridTemplateColumns: '300px 1fr', gap: 28, maxWidth: 1100, margin: '0 auto' }}>
+      <div style={{
+        padding: isMobile ? '18px 16px' : '28px',
+        display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '300px 1fr',
+        gap: isMobile ? 22 : 28, maxWidth: 1100, margin: '0 auto',
+        paddingBottom: isMobile ? 88 : undefined,
+      }}>
         <div>
           <FieldLabel>Fotos do produto</FieldLabel>
           <div style={{ fontSize: 11, color: 'var(--ink-mute)', marginTop: 4 }}>
@@ -506,34 +588,65 @@ function AdminForm({ product, onSave, onCancel, onError }) {
             ))}
 
             {(form.photos || []).length < 6 && (
-              <label style={{
-                aspectRatio: '1', borderRadius: 8, border: '2px dashed var(--line-strong)',
-                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                cursor: uploading ? 'wait' : 'pointer',
-                background: 'var(--bg-elev)', color: 'var(--ink-mute)', gap: 6,
-                position: 'relative',
-              }}>
-                {uploading ? (
-                  <div style={{
-                    width: 24, height: 24, border: '2px solid var(--accent)',
-                    borderTopColor: 'transparent', borderRadius: 99,
-                    animation: 'spin 0.8s linear infinite',
-                  }}/>
-                ) : (
-                  <>
-                    <Icon.plus size={22}/>
-                    <div style={{ fontSize: 11, fontWeight: 600, textAlign: 'center' }}>
-                      {(form.photos || []).length === 0 ? 'Adicionar foto' : 'Mais fotos'}
-                    </div>
-                    <div style={{ fontSize: 10, color: 'var(--ink-mute)' }}>JPG, PNG, WEBP · 5MB</div>
-                  </>
-                )}
-                <input
-                  type="file" accept="image/jpeg,image/png,image/webp"
-                  multiple onChange={onPhoto} disabled={uploading}
-                  style={{ position: 'absolute', inset: 0, opacity: 0, cursor: uploading ? 'wait' : 'pointer' }}
-                />
-              </label>
+              <>
+                <label style={{
+                  aspectRatio: '1', borderRadius: 8, border: '2px dashed var(--line-strong)',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                  cursor: uploading ? 'wait' : 'pointer',
+                  background: 'var(--bg-elev)', color: 'var(--ink-mute)', gap: 6,
+                  position: 'relative',
+                }}>
+                  {uploading ? (
+                    <div style={{
+                      width: 24, height: 24, border: '2px solid var(--accent)',
+                      borderTopColor: 'transparent', borderRadius: 99,
+                      animation: 'spin 0.8s linear infinite',
+                    }}/>
+                  ) : (
+                    <>
+                      <Icon.plus size={22}/>
+                      <div style={{ fontSize: 11, fontWeight: 600, textAlign: 'center' }}>
+                        {(form.photos || []).length === 0 ? 'Adicionar foto' : 'Mais fotos'}
+                      </div>
+                      <div style={{ fontSize: 10, color: 'var(--ink-mute)' }}>JPG, PNG, WEBP · 5MB</div>
+                    </>
+                  )}
+                  <input
+                    type="file" accept="image/jpeg,image/png,image/webp"
+                    multiple onChange={onPhoto} disabled={uploading}
+                    style={{ position: 'absolute', inset: 0, opacity: 0, cursor: uploading ? 'wait' : 'pointer' }}
+                  />
+                </label>
+
+                <label style={{
+                  aspectRatio: '1', borderRadius: 8, border: '2px dashed var(--line-strong)',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                  cursor: uploading ? 'wait' : 'pointer',
+                  background: 'var(--bg-elev)', color: 'var(--ink-mute)', gap: 6,
+                  position: 'relative',
+                }}>
+                  {uploading ? (
+                    <div style={{
+                      width: 24, height: 24, border: '2px solid var(--accent)',
+                      borderTopColor: 'transparent', borderRadius: 99,
+                      animation: 'spin 0.8s linear infinite',
+                    }}/>
+                  ) : (
+                    <>
+                      <Icon.camera size={22}/>
+                      <div style={{ fontSize: 11, fontWeight: 600, textAlign: 'center' }}>
+                        Tirar foto
+                      </div>
+                      <div style={{ fontSize: 10, color: 'var(--ink-mute)' }}>Usar câmera</div>
+                    </>
+                  )}
+                  <input
+                    type="file" accept="image/*" capture="environment"
+                    onChange={onPhoto} disabled={uploading}
+                    style={{ position: 'absolute', inset: 0, opacity: 0, cursor: uploading ? 'wait' : 'pointer' }}
+                  />
+                </label>
+              </>
             )}
           </div>
 
@@ -563,7 +676,7 @@ function AdminForm({ product, onSave, onCancel, onError }) {
               maxLength={100}/>
           </Field>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 14 }}>
             <Field label="Marca / Fabricante" error={fieldErrors.brand}>
               <input className="r-input" value={form.brand}
                 onChange={e => upd('brand', e.target.value)}
@@ -578,7 +691,7 @@ function AdminForm({ product, onSave, onCancel, onError }) {
             </Field>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 14 }}>
             <Field label="Preço (R$)" required error={fieldErrors.price}>
               <input className="r-input" type="number" step="0.01" min="0.01" max="99999"
                 value={form.price} onChange={e => upd('price', e.target.value)} placeholder="0,00"/>
@@ -589,7 +702,7 @@ function AdminForm({ product, onSave, onCancel, onError }) {
             </Field>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 14 }}>
             <Field label="Avaliação (0 – 5)">
               <input className="r-input" type="number" step="0.1" min="0" max="5"
                 value={form.rating ?? ''} onChange={e => upd('rating', e.target.value === '' ? null : Number(e.target.value))}
@@ -660,6 +773,20 @@ function AdminForm({ product, onSave, onCancel, onError }) {
           </Field>
         </div>
       </div>
+
+      {isMobile && (
+        <div style={{
+          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 30,
+          display: 'flex', gap: 10, alignItems: 'center',
+          padding: '12px 16px', background: 'var(--bg)', borderTop: '1px solid var(--line)',
+        }}>
+          {saving && <span style={{ fontSize: 11, color: 'var(--ink-mute)', flexShrink: 0 }}>Salvando...</span>}
+          <button onClick={onCancel} className="btn-ghost" style={{ fontSize: 13, flex: 1 }}>Cancelar</button>
+          <button onClick={save} className="btn-primary" disabled={saving} style={{ padding: '12px 18px', fontSize: 13, flex: 2 }}>
+            {saving ? 'Salvando...' : 'Salvar'}
+          </button>
+        </div>
+      )}
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
