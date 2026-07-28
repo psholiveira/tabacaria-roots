@@ -57,6 +57,17 @@ export function AdminApp() {
     }
   };
 
+  const handleToggleHidden = async (p) => {
+    try {
+      setOpError(null);
+      await upsertProduct({ ...p, hidden: !p.hidden });
+      showToast(p.hidden ? `"${p.name}" voltou a aparecer na loja.` : `"${p.name}" ocultado da loja.`);
+    } catch (err) {
+      setOpError(`Erro ao atualizar: ${err.message}`);
+      showToast(`Erro ao atualizar: ${err.message}`, 'error');
+    }
+  };
+
 const handleLogout = async () => {
     await supabase.auth.signOut();
   };
@@ -161,7 +172,7 @@ const handleLogout = async () => {
         ) : isMobile ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {items.map(p => (
-              <div key={p.id} className="r-card" style={{ padding: 12, display: 'flex', gap: 12 }}>
+              <div key={p.id} className="r-card" style={{ padding: 12, display: 'flex', gap: 12, opacity: p.hidden ? 0.55 : 1 }}>
                 <div style={{ width: 56, height: 56, borderRadius: 8, overflow: 'hidden', flexShrink: 0 }}>
                   <ProductImage product={p} size="sm"/>
                 </div>
@@ -190,8 +201,19 @@ const handleLogout = async () => {
                         </span>
                       ))}
                       {p.bestseller && <span className="tag tag-top">TOP</span>}
+                      {p.hidden && <span className="tag" style={{ background: 'var(--ink-mute)', color: 'var(--bg)' }}>OCULTO</span>}
                     </div>
                     <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                      <button
+                        onClick={() => handleToggleHidden(p)}
+                        style={{
+                          background: 'transparent', border: '1px solid var(--line)',
+                          color: 'var(--ink)', padding: '6px 12px', borderRadius: 6,
+                          fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                        }}
+                      >
+                        {p.hidden ? 'Exibir' : 'Ocultar'}
+                      </button>
                       <button
                         onClick={() => setEditing(p)}
                         style={{
@@ -249,7 +271,7 @@ const handleLogout = async () => {
                 </thead>
                 <tbody>
                   {items.map(p => (
-                    <tr key={p.id} style={{ borderTop: '1px solid var(--line)' }}>
+                    <tr key={p.id} style={{ borderTop: '1px solid var(--line)', opacity: p.hidden ? 0.55 : 1 }}>
                       <td style={{ padding: '10px 14px' }}>
                         <div style={{ width: 46, height: 46, borderRadius: 6, overflow: 'hidden' }}>
                           <ProductImage product={p} size="sm"/>
@@ -278,9 +300,20 @@ const handleLogout = async () => {
                             </span>
                           ))}
                           {p.bestseller && <span className="tag tag-top">TOP</span>}
+                          {p.hidden && <span className="tag" style={{ background: 'var(--ink-mute)', color: 'var(--bg)' }}>OCULTO</span>}
                         </div>
                       </td>
                       <td style={{ padding: '10px 14px', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                        <button
+                          onClick={() => handleToggleHidden(p)}
+                          style={{
+                            background: 'transparent', border: '1px solid var(--line)',
+                            color: 'var(--ink)', padding: '5px 10px', borderRadius: 6,
+                            fontSize: 11, fontWeight: 600, cursor: 'pointer', marginRight: 6,
+                          }}
+                        >
+                          {p.hidden ? 'Exibir' : 'Ocultar'}
+                        </button>
                         <button
                           onClick={() => setEditing(p)}
                           style={{
@@ -388,7 +421,7 @@ function AdminForm({ product, isMobile, onSave, onCancel, onError }) {
     id: newProductId(),
     name: '', cat: 'narguile', brand: '', price: 0, oldPrice: null,
     desc: '', variations: [], tags: [], photo: null, photos: [],
-    rating: 5.0, ratings: 0, bestseller: false,
+    rating: 5.0, ratings: 0, bestseller: false, hidden: false,
   });
   const [newVar, setNewVar]         = useState('');
   const [uploading, setUploading]   = useState(false);
@@ -769,6 +802,18 @@ function AdminForm({ product, isMobile, onSave, onCancel, onError }) {
                   style={{ accentColor: 'var(--accent)' }}/>
                 Marcar como best-seller
               </label>
+            </div>
+          </Field>
+
+          <Field label="Disponibilidade">
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--ink)', cursor: 'pointer' }}>
+              <input type="checkbox" checked={!!form.hidden}
+                onChange={e => upd('hidden', e.target.checked)}
+                style={{ accentColor: 'var(--accent)' }}/>
+              Ocultar produto da loja (fora de estoque)
+            </label>
+            <div style={{ fontSize: 11, color: 'var(--ink-mute)', marginTop: 4 }}>
+              O produto continua salvo e editável, só some do site para os clientes.
             </div>
           </Field>
         </div>

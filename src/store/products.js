@@ -40,6 +40,7 @@ function fromDb(row) {
     rating:     Number(row.rating)  || 5.0,
     ratings:    Number(row.ratings) || 0,
     bestseller: Boolean(row.bestseller),
+    hidden:     Boolean(row.hidden),
   };
 }
 
@@ -60,6 +61,7 @@ function toDb(p) {
     rating:     p.rating     || 5.0,
     ratings:    p.ratings    || 0,
     bestseller: Boolean(p.bestseller),
+    hidden:     Boolean(p.hidden),
   };
 }
 

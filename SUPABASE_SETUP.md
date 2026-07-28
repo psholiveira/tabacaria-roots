@@ -51,6 +51,7 @@ CREATE TABLE products (
   rating      NUMERIC     DEFAULT 5.0,
   ratings     INTEGER     DEFAULT 0,
   bestseller  BOOLEAN     DEFAULT false,
+  hidden      BOOLEAN     DEFAULT false,
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -67,6 +68,13 @@ CREATE POLICY "Auth manage products"
   ON products FOR ALL
   USING (auth.role() = 'authenticated');
 ```
+
+---
+
+> **Já tem a tabela `products` criada?** Rode só isto no SQL Editor para adicionar a coluna de produto oculto sem perder os dados existentes:
+> ```sql
+> ALTER TABLE products ADD COLUMN IF NOT EXISTS hidden BOOLEAN NOT NULL DEFAULT false;
+> ```
 
 ---
 

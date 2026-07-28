@@ -41,7 +41,8 @@ export function MobileApp() {
   });
   const [toast, setToast] = useState(null);
   const cart = useCart();
-  const products = useProducts();
+  const allProducts = useProducts();
+  const products = allProducts.filter(p => !p.hidden);
 
   const addToCart = (p, v) => { cart.add(p, v); setToast({ product: p, id: Date.now() }); };
 

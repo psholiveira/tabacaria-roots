@@ -42,7 +42,8 @@ export function DesktopApp() {
   const [toast, setToast] = useState(null);
   const [catalogQ, setCatalogQ] = useState('');
   const cart = useCart();
-  const products = useProducts();
+  const allProducts = useProducts();
+  const products = allProducts.filter(p => !p.hidden);
 
   // Restaura produto pelo ID quando os produtos carregam
   useEffect(() => {
