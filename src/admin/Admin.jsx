@@ -7,12 +7,16 @@ import { ProductImage } from '../components/ProductImage.jsx';
 import { ProductCard } from '../components/ProductCard.jsx';
 import { supabase } from '../lib/supabase.js';
 import { useIsMobile } from '../hooks/useIsMobile.js';
+import { useIdleLogout } from '../hooks/useIdleLogout.js';
+import { SecurityPanel } from './SecurityPanel.jsx';
 import {
   useProducts, useProductsLoading, upsertProduct, deleteProduct, newProductId,
 } from '../store/products.js';
 
 // ─── Painel principal ─────────────────────────────────────────────────────
 export function AdminApp() {
+  useIdleLogout(20); // desloga após 20min sem interação
+
   const products = useProducts();
   const loading  = useProductsLoading();
   const isMobile = useIsMobile();
@@ -21,6 +25,7 @@ export function AdminApp() {
   const [catFilter, setCatFilter] = useState('all');
   const [opError, setOpError]     = useState(null);
   const [toast, setToast]         = useState(null);
+  const [showSecurity, setShowSecurity] = useState(false);
 
   const showToast = useCallback((msg, type = 'success') => {
     setToast({ msg, type });
@@ -112,6 +117,9 @@ const handleLogout = async () => {
             <a href="#" style={{ fontSize: 11.5, color: 'var(--ink-dim)', textDecoration: 'none', padding: '8px 12px' }}>
               ← Voltar à loja
             </a>
+            <button onClick={() => setShowSecurity(true)} className="btn-ghost" style={{ fontSize: 11 }}>
+              Segurança
+            </button>
             <button onClick={handleLogout} className="btn-ghost" style={{ fontSize: 11 }}>
               Sair
             </button>
@@ -369,6 +377,7 @@ const handleLogout = async () => {
            </div>
       </div>
       <Toast toast={toast} onClose={() => setToast(null)} />
+      {showSecurity && <SecurityPanel onClose={() => setShowSecurity(false)} />}
     </div>
   );
 }

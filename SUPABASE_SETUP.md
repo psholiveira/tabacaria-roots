@@ -78,6 +78,50 @@ CREATE POLICY "Auth manage products"
 
 ---
 
+## 3b. Restringir o painel a admins de verdade (importante)
+
+A policy do passo 3 (`auth.role() = 'authenticated'`) libera escrita para **qualquer** usuário logado no projeto Supabase, não só para você. Se um dia existir cadastro de clientes (ou alguém criar conta pelo Supabase), essa pessoa ganharia acesso total ao catálogo. Rode o SQL abaixo no **SQL Editor** para restringir a uma lista explícita de admins — é seguro rodar mesmo que você já tenha o passo 3 aplicado (idempotente):
+
+```sql
+-- Tabela com os usuários autorizados a administrar o catálogo
+CREATE TABLE IF NOT EXISTS admins (
+  user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE
+);
+
+ALTER TABLE admins ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Admins can read own row" ON admins;
+CREATE POLICY "Admins can read own row"
+  ON admins FOR SELECT
+  USING (auth.uid() = user_id);
+
+-- Substitui a policy antiga (qualquer autenticado) pela restrita (só admins)
+DROP POLICY IF EXISTS "Auth manage products" ON products;
+CREATE POLICY "Admins manage products"
+  ON products FOR ALL
+  USING (auth.uid() IN (SELECT user_id FROM admins))
+  WITH CHECK (auth.uid() IN (SELECT user_id FROM admins));
+
+DROP POLICY IF EXISTS "Auth upload images" ON storage.objects;
+CREATE POLICY "Admins upload images"
+  ON storage.objects FOR INSERT
+  WITH CHECK (bucket_id = 'products' AND auth.uid() IN (SELECT user_id FROM admins));
+
+DROP POLICY IF EXISTS "Auth delete images" ON storage.objects;
+CREATE POLICY "Admins delete images"
+  ON storage.objects FOR DELETE
+  USING (bucket_id = 'products' AND auth.uid() IN (SELECT user_id FROM admins));
+
+-- Autoriza o(s) usuário(s) admin já criados no passo 5 (troque o email)
+INSERT INTO admins (user_id)
+SELECT id FROM auth.users WHERE email = 'seu-email-admin@exemplo.com'
+ON CONFLICT (user_id) DO NOTHING;
+```
+
+> Repita o `INSERT INTO admins` para cada email admin adicional. Sem uma linha em `admins`, o login funciona (é uma conta válida no Supabase Auth) mas toda escrita no catálogo é bloqueada pela RLS.
+
+---
+
 ## 4. Criar o bucket de imagens
 
 1. Ainda no **SQL Editor**, execute:
@@ -114,6 +158,18 @@ CREATE POLICY "Auth delete images"
 3. Clique em **Create user**
 
 > Esse é o único usuário que terá acesso ao painel `/#admin`.
+
+**Não esqueça de rodar o `INSERT INTO admins` do passo 3b com este email**, senão o login funciona mas nenhuma escrita no catálogo é permitida.
+
+---
+
+## 5b. Hardening adicional (recomendado, feito no Dashboard)
+
+Estes passos não têm SQL — são toggles no painel do Supabase:
+
+1. **Desabilitar cadastro público** — vá em **Authentication → Settings → User Signups** e desative "Allow new users to sign up". Sem isso, qualquer pessoa pode criar uma conta autenticada; com a policy do passo 3b ela não teria acesso de escrita, mas é uma camada extra de defesa não deixar contas estranhas existirem no projeto.
+2. **Ativar MFA (2FA) na conta admin** — o app já tem suporte a MFA embutido (ver `src/admin/AdminLogin.jsx` e o botão "Segurança" no painel). Depois de logar pela primeira vez, ative o MFA no próprio painel admin e escaneie o QR code com um app autenticador (Google Authenticator, Authy, etc).
+3. **(Opcional) CAPTCHA no login** — em **Authentication → Settings → Bot and Abuse Protection**, ative o hCaptcha ou Cloudflare Turnstile e configure a site key. Isso exige adicionar o widget no `AdminLogin.jsx`; avise se quiser que essa parte seja implementada — ela depende de uma conta/site-key externa que só você pode criar.
 
 ---
 
