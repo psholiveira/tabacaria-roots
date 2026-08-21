@@ -1,5 +1,8 @@
 ﻿import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase.js';
+import { Turnstile } from '../components/Turnstile.jsx';
+
+const CAPTCHA_ENABLED = !!import.meta.env.VITE_TURNSTILE_SITE_KEY;
 
 // ─── Lockout local contra tentativas repetidas ─────────────────────────────
 // Proteção só de UX/fricção: roda no navegador, não substitui rate limiting
@@ -38,6 +41,10 @@ export function AdminLogin() {
   const [mfaChallenge, setMfaChallenge] = useState(null);
   const [mfaCode, setMfaCode]           = useState('');
 
+  // Cloudflare Turnstile (anti-bot). Token de uso único: some depois de cada tentativa.
+  const [captchaToken, setCaptchaToken] = useState(null);
+  const [captchaResetKey, setCaptchaResetKey] = useState(0);
+
   useEffect(() => {
     if (!lockedUntil) return;
     const t = setInterval(() => {
@@ -62,9 +69,19 @@ export function AdminLogin() {
       return;
     }
 
+    if (CAPTCHA_ENABLED && !captchaToken) {
+      setError('Confirme que você não é um robô antes de continuar.');
+      return;
+    }
+
     setLoading(true);
     setError(null);
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email, password,
+      options: CAPTCHA_ENABLED ? { captchaToken } : undefined,
+    });
+    // Token do Turnstile é de uso único — força gerar outro pra próxima tentativa
+    setCaptchaResetKey(k => k + 1);
 
     if (authError) {
       const attempts = guard.attempts + 1;
@@ -212,10 +229,14 @@ export function AdminLogin() {
             required
             disabled={loading || isLocked}
           />
+          {CAPTCHA_ENABLED && (
+            <Turnstile onToken={setCaptchaToken} resetKey={captchaResetKey} />
+          )}
+
           <button
             type="submit"
             className="btn-primary"
-            disabled={loading || isLocked}
+            disabled={loading || isLocked || (CAPTCHA_ENABLED && !captchaToken)}
             style={{ marginTop: 6, padding: '13px', fontSize: 13, letterSpacing: '0.06em' }}
           >
             {loading ? 'Entrando...' : isLocked ? `Aguarde ${secondsLeft}s` : 'Entrar'}

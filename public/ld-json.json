@@ -1,0 +1,34 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Store",
+  "name": "Roots Tabacaria",
+  "description": "Tabacaria Roots — Recife. Curadoria de tabaco, narguilé, sedas e acessórios.",
+  "telephone": "+558199922-3444",
+  "url": "https://rootstabacaria.com.br",
+  "address": [
+    {
+      "@type": "PostalAddress",
+      "streetAddress": "Av. Conde da Boa Vista, 247",
+      "addressLocality": "Recife",
+      "addressRegion": "PE",
+      "postalCode": "50060-002",
+      "addressCountry": "BR"
+    },
+    {
+      "@type": "PostalAddress",
+      "streetAddress": "Rua do Hospício, 250",
+      "addressLocality": "Recife",
+      "addressRegion": "PE",
+      "postalCode": "50050-035",
+      "addressCountry": "BR"
+    }
+  ],
+  "openingHoursSpecification": [
+    { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday"], "opens": "10:00", "closes": "22:00" },
+    { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Friday","Saturday"], "opens": "10:00", "closes": "00:00" },
+    { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Sunday"], "opens": "14:00", "closes": "22:00" }
+  ],
+  "priceRange": "R$",
+  "currenciesAccepted": "BRL",
+  "paymentAccepted": "Dinheiro, Cartão, PIX"
+}

@@ -173,6 +173,49 @@ Estes passos não têm SQL — são toggles no painel do Supabase:
 
 ---
 
+## 5c. Hardening adicional (SQL — rodar no SQL Editor)
+
+Estes dois passos fecham brechas que dependem só do banco (a validação de arquivo no navegador e o filtro de produto oculto na tela podem ser burlados por quem chama a API do Supabase diretamente).
+
+**Restringir tipo/tamanho de arquivo no bucket de imagens** — hoje o bucket `products` aceita qualquer arquivo; a checagem de "só JPG/PNG/WEBP até 5MB" existe apenas no JavaScript do formulário admin. Isso limita o upload no próprio Storage, valendo mesmo pra quem chamar a API direto:
+
+```sql
+UPDATE storage.buckets
+SET file_size_limit = 5242880, -- 5MB em bytes
+    allowed_mime_types = ARRAY['image/jpeg', 'image/png', 'image/webp']
+WHERE id = 'products';
+```
+
+**Esconder produtos ocultos também na leitura (não só na tela)** — hoje a policy de leitura (`Public read products`) devolve todos os produtos, inclusive os marcados como "ocultos" no admin; a tela só filtra depois de já ter baixado tudo. Rode isto pra que o próprio banco não devolva produto oculto pra quem não é admin (requer a tabela `admins` do passo 3b já criada):
+
+```sql
+DROP POLICY IF EXISTS "Public read products" ON products;
+CREATE POLICY "Public read visible products"
+  ON products FOR SELECT
+  USING (
+    hidden = false
+    OR auth.uid() IN (SELECT user_id FROM admins)
+  );
+```
+
+> Depois de rodar, teste como visitante (deslogado): produtos ocultos não devem mais aparecer nem numa chamada direta à API REST do Supabase. Logado como admin, a listagem em `/#admin` continua mostrando todos, ocultos inclusive.
+
+---
+
+## 5d. CAPTCHA no login (Cloudflare Turnstile)
+
+O app já vem com o widget do Turnstile integrado em `AdminLogin.jsx` — ele só aparece se `VITE_TURNSTILE_SITE_KEY` estiver definida no `.env.local`. Pra ativar de verdade (com validação no servidor, não só visual):
+
+1. Crie um site em **https://dash.cloudflare.com/?to=/:account/turnstile** (widget mode: "Managed") e copie a **Site Key** e a **Secret Key**.
+2. Cole a Site Key no `.env.local`:
+   ```
+   VITE_TURNSTILE_SITE_KEY=0x4AAAAAAA...
+   ```
+3. No painel do Supabase, vá em **Authentication → Settings → Bot and Abuse Protection**, ative **Turnstile** e cole a **Secret Key** lá (essa fica só no servidor do Supabase, nunca no frontend).
+4. Reinicie o `npm run dev` / refaça o build. Sem a Secret Key configurada no Supabase, o token do widget é gerado mas **não é validado** — o passo 3 é o que de fato bloqueia bots.
+
+---
+
 ## 6. Testar
 
 1. Pare o servidor de desenvolvimento se estiver rodando

@@ -32,7 +32,7 @@ export class ErrorBoundary extends Component {
               ALGO DEU ERRADO
             </h2>
             <p style={{ color: 'var(--ink-mute)', fontSize: 13, marginBottom: 24, lineHeight: 1.6 }}>
-              {this.state.error.message || 'Erro inesperado. Tente recarregar a página.'}
+              Ocorreu um erro inesperado. Tente recarregar a página; se persistir, entre em contato com a gente.
             </p>
             <button className="btn-primary" onClick={() => window.location.reload()}>
               Recarregar página
