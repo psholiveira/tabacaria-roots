@@ -118,6 +118,14 @@ export function KitBuilder({ products, onFinish, onExit, mobile = false }) {
             <div style={{ height: 4, width: 70, borderRadius: 99, background: CAT_COLORS[cur.id] || 'var(--accent)' }}/>
           </div>
 
+          <StepTopNav
+            mobile={mobile}
+            last={step === steps.length - 1}
+            onPrev={step > 0 ? prev : null}
+            onSkip={skip}
+            onNext={next}
+          />
+
           <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, gap: mobile ? 10 : 16 }}>
             {cur.items.map(p => (
               <KitTile key={p.id} product={p} picked={picked} onAdd={addItem} setQty={setQty} />
@@ -283,6 +291,28 @@ function StepBtn({ onClick, children, filled, label }) {
       color: filled ? 'var(--accent-ink)' : 'var(--ink)',
       display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0,
     }}>{children}</button>
+  );
+}
+
+// ─── Atalhos no topo do passo (mesmas ações do rodapé) ────────────────────
+function StepTopNav({ mobile, last, onPrev, onSkip, onNext }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '0 0 14px' }}>
+      {onPrev && (
+        <button onClick={onPrev} className="btn-ghost" aria-label="Categoria anterior" style={{
+          padding: '9px 12px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12.5,
+        }}><Icon.back size={13}/>{mobile ? null : 'Voltar'}</button>
+      )}
+      <button onClick={onSkip} className="btn-ghost" style={{ flex: 1, padding: '9px 12px', fontSize: 12.5 }}>
+        Pular
+      </button>
+      <button onClick={onNext} className="btn-primary" style={{
+        flex: 1.4, padding: '9px 12px', fontSize: 12.5,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+      }}>
+        {last ? 'Ver meu kit' : 'Continuar'} <Icon.arrow size={14}/>
+      </button>
+    </div>
   );
 }
 
