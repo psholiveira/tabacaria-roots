@@ -5,6 +5,7 @@ import { CATEGORIES, FILTERS, filterProducts } from '../data.js';
 import { Icon } from '../components/Icons.jsx';
 import { ProductCard } from '../components/ProductCard.jsx';
 import { SkeletonGrid } from '../components/SkeletonCard.jsx';
+import { KitBuilderCTA } from '../components/KitBuilder.jsx';
 import { useProductsLoading } from '../store/products.js';
 import { MobileHeader } from './Shell.jsx';
 
@@ -54,6 +55,10 @@ export function MobileCatalog({ products, initialCat, addToCart, openProduct, on
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
+      </div>
+
+      <div style={{ padding: '0 16px 14px' }}>
+        <KitBuilderCTA mobile products={products} onStart={() => go('kit')} />
       </div>
 
       <div className="no-scrollbar" style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '0 16px 14px' }}>

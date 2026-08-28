@@ -5,9 +5,10 @@ import { CATEGORIES, FILTERS, filterProducts } from '../data.js';
 import { ProductCard } from '../components/ProductCard.jsx';
 import { SkeletonGrid } from '../components/SkeletonCard.jsx';
 import { useProductsLoading } from '../store/products.js';
+import { KitBuilderCTA } from '../components/KitBuilder.jsx';
 import { Label } from '../mobile/Shell.jsx';
 
-export function DesktopCatalog({ products, initialCat, openProduct, addToCart, q = '', setQ }) {
+export function DesktopCatalog({ products, initialCat, openProduct, addToCart, q = '', setQ, go }) {
   const loading = useProductsLoading();
   const [cat, setCat] = useState(initialCat || 'all');
   const [sort, setSort] = useState('relevance');
@@ -58,6 +59,12 @@ export function DesktopCatalog({ products, initialCat, openProduct, addToCart, q
       </aside>
 
       <div>
+        {go && (
+          <div style={{ marginBottom: 28 }}>
+            <KitBuilderCTA products={products} onStart={() => go('kit')} />
+          </div>
+        )}
+
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 24, gap: 20, flexWrap: 'wrap' }}>
           <div>
             <h1 className="display" style={{ fontSize: 32, margin: 0, letterSpacing: '0.01em' }}>

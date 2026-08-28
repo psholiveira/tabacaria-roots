@@ -9,3 +9,4 @@ dist-ssr
 .env.*.local
 .SUPABASE_SETUP.md
 .env.example
+.claude

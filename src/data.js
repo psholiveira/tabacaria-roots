@@ -19,7 +19,6 @@ export const STORE_INFO = {
 
 export const CATEGORIES = [
   { id: 'all',       label: 'Tudo' },
-  { id: 'narguile',      label: 'Narguilé' },
   { id: 'sedas',         label: 'Sedas' },
   { id: 'dichavadores',  label: 'Dichavadores' },
   { id: 'tabacos',   label: 'Tabacos' },
@@ -28,6 +27,7 @@ export const CATEGORIES = [
   { id: 'piteiras',  label: 'Piteiras' },
   { id: 'isqueiros',    label: 'Isqueiros' },
   { id: 'bongs',        label: 'Bongs' },
+  { id: 'narguile',      label: 'Narguilé' },
   { id: 'acessorios',   label: 'Acessórios' },
   { id: 'cachimbos',    label: 'Cachimbos' },
   { id: 'pipe-metal',   label: 'Pipe de Metal' },

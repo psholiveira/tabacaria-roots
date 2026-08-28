@@ -11,6 +11,7 @@ import { MobileProduct } from './Product.jsx';
 import { MobileCart } from './Cart.jsx';
 import { MobileCheckout } from './Checkout.jsx';
 import { MobileStore } from './Store.jsx';
+import { KitBuilder } from '../components/KitBuilder.jsx';
 
 const AGE_KEY = 'roots:age-confirmed';
 
@@ -20,13 +21,14 @@ function parseHash() {
   if (s === 'product' && param) return { screen: 'product', params: {}, productId: param };
   if (s === 'store')   return { screen: 'store',   params: {}, productId: null };
   if (s === 'cart')    return { screen: 'cart',    params: {}, productId: null };
+  if (s === 'kit')     return { screen: 'kit',     params: {}, productId: null };
   return { screen: 'home', params: {}, productId: null };
 }
 
 function setHash(screen, params = {}, productId = null) {
   if (screen === 'product' && productId) { window.location.hash = `product/${productId}`; return; }
   if (screen === 'catalog') { window.location.hash = params.cat ? `catalog/${params.cat}` : 'catalog'; return; }
-  if (['home', 'store', 'cart'].includes(screen)) { window.location.hash = screen; return; }
+  if (['home', 'store', 'cart', 'kit'].includes(screen)) { window.location.hash = screen; return; }
   window.location.hash = 'home';
 }
 
@@ -45,6 +47,14 @@ export function MobileApp() {
   const products = allProducts.filter(p => !p.hidden);
 
   const addToCart = (p, v) => { cart.add(p, v); setToast({ product: p, id: Date.now() }); };
+
+  // Monte seu kit → joga tudo na sacola de uma vez
+  const addKitToCart = (kitItems) => {
+    kitItems.forEach(({ product, variation, qty }) => {
+      for (let n = 0; n < qty; n++) cart.add(product, variation);
+    });
+    go('cart');
+  };
 
   // Restaura produto pelo ID quando os produtos carregam
   useEffect(() => {
@@ -114,6 +124,14 @@ export function MobileApp() {
         )}
         {screen === 'store' && (
           <MobileStore onBack={() => go('home')} />
+        )}
+        {screen === 'kit' && (
+          <KitBuilder
+            products={products}
+            mobile={true}
+            onFinish={addKitToCart}
+            onExit={() => go('catalog')}
+          />
         )}
       </div>
       {showNav && <BottomNav active={screen} onNav={go} cartCount={cart.count} />}

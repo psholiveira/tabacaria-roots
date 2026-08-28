@@ -11,6 +11,7 @@ import { DesktopStore } from './Store.jsx';
 import { DesktopCartDrawer } from './CartDrawer.jsx';
 import { CartToast } from '../components/CartToast.jsx';
 import { AgeGate } from '../mobile/Shell.jsx';
+import { KitBuilder } from '../components/KitBuilder.jsx';
 
 const AGE_KEY = 'roots:age-confirmed';
 
@@ -19,13 +20,14 @@ function parseHash() {
   if (s === 'catalog') return { screen: 'catalog', params: param ? { cat: param } : {}, productId: null };
   if (s === 'product' && param) return { screen: 'product', params: {}, productId: param };
   if (s === 'store')  return { screen: 'store',  params: {}, productId: null };
+  if (s === 'kit')    return { screen: 'kit',    params: {}, productId: null };
   return { screen: 'home', params: {}, productId: null };
 }
 
 function setHash(screen, params = {}, productId = null) {
   if (screen === 'product' && productId) { window.location.hash = `product/${productId}`; return; }
   if (screen === 'catalog') { window.location.hash = params.cat ? `catalog/${params.cat}` : 'catalog'; return; }
-  if (['home', 'store'].includes(screen)) { window.location.hash = screen; return; }
+  if (['home', 'store', 'kit'].includes(screen)) { window.location.hash = screen; return; }
   window.location.hash = 'home';
 }
 
@@ -69,6 +71,15 @@ export function DesktopApp() {
   const openProduct = (p) => { setHash('product', {}, p.id); setProduct(p); setScreen('product'); window.scrollTo(0, 0); };
   const addToCart = (p, v) => { cart.add(p, v); setToast({ product: p, id: Date.now() }); };
 
+  // Monte seu kit → joga tudo na sacola de uma vez
+  const addKitToCart = (kitItems) => {
+    kitItems.forEach(({ product, variation, qty }) => {
+      for (let n = 0; n < qty; n++) cart.add(product, variation);
+    });
+    go('catalog');
+    setCartOpen(true);
+  };
+
   const confirmAge = () => {
     try { localStorage.setItem(AGE_KEY, '1'); } catch {}
     setAgeOk(true);
@@ -81,7 +92,8 @@ export function DesktopApp() {
       <DesktopHeader cart={cart} go={go} screen={screen} onOpenCart={() => setCartOpen(true)} searchQ={catalogQ} onSearchQ={setCatalogQ} />
       <div key={screen} style={{ animation: 'page-enter 0.28s ease-out' }}>
         {screen === 'home' && <DesktopHome products={products} go={go} openProduct={openProduct} addToCart={addToCart} />}
-        {screen === 'catalog' && <DesktopCatalog products={products} initialCat={params.cat} openProduct={openProduct} addToCart={addToCart} q={catalogQ} setQ={setCatalogQ} />}
+        {screen === 'catalog' && <DesktopCatalog products={products} initialCat={params.cat} openProduct={openProduct} addToCart={addToCart} q={catalogQ} setQ={setCatalogQ} go={go} />}
+        {screen === 'kit' && <KitBuilder products={products} onFinish={addKitToCart} onExit={() => go('catalog')} />}
         {screen === 'product' && product && <DesktopProduct products={products} product={product} go={go} openProduct={openProduct} addToCart={addToCart} />}
         {screen === 'store' && <DesktopStore />}
       </div>

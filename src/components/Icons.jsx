@@ -84,6 +84,18 @@ export const Icon = {
       <path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13" r="3.5"/>
     </svg>
   ),
+  leaf: (p={}) => (
+    <svg width={p.size||16} height={p.size||16} viewBox="0 0 24 24" fill="currentColor" {...p}>
+      <path d="M12 19Q9 11 12 2 15 11 12 19Z
+               M12 19Q4 12 5 5 10 10 12 19Z
+               M12 19Q20 12 19 5 14 10 12 19Z
+               M12 19Q2.5 15 1.5 9 8 13 12 19Z
+               M12 19Q21.5 15 22.5 9 16 13 12 19Z
+               M12 19Q6 19.5 3 15.5 9 17 12 19Z
+               M12 19Q18 19.5 21 15.5 15 17 12 19Z"/>
+      <path d="M12 18.5V22.5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
+    </svg>
+  ),
   phone: (p={}) => (
     <svg width={p.size||16} height={p.size||16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
       <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2 4.2 2 2 0 0 1 4 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.7.6 2.5a2 2 0 0 1-.5 2.1L7.9 9.6a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5 13 13 0 0 0 2.5.6 2 2 0 0 1 1.7 2Z"/>
