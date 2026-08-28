@@ -83,7 +83,7 @@ export function DesktopCatalog({ products, initialCat, openProduct, addToCart, q
         {loading ? (
           <SkeletonGrid count={6} columns={3} gap={16} />
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gridAutoRows: '1fr', gap: 16 }}>
             {items.map(p => (
               <ProductCard key={p.id} product={p} onTap={() => openProduct(p)} addToCart={addToCart} />
             ))}

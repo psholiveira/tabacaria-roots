@@ -54,7 +54,7 @@ const Silhouettes = {
   ),
 };
 
-export function ProductImage({ product, size = 'md', carousel = false, children }) {
+export function ProductImage({ product, size = 'md', carousel = false, ratio, children }) {
   const allPhotos = product.photos?.length > 0
     ? product.photos
     : (product.photo ? [product.photo] : []);
@@ -63,8 +63,10 @@ export function ProductImage({ product, size = 'md', carousel = false, children 
   const touchX = useRef(null);
 
   const c = CAT_COLORS[product.cat] || '#3a3a35';
-  const heights = { sm: 110, md: 180, lg: 320 };
-  const h = heights[size] || heights.md;
+  // proporção fixa por tamanho — mantém todos os cards com a mesma altura de imagem.
+  // a foto entra com object-fit: contain, então nada é cortado (sobra fundo nas laterais).
+  const ratios = { sm: '1 / 1', md: '1 / 1', lg: '1 / 1' };
+  const box = ratio || ratios[size] || ratios.md;
 
   const multi = carousel && allPhotos.length > 1;
 
@@ -92,7 +94,7 @@ export function ProductImage({ product, size = 'md', carousel = false, children 
     return (
       <div
         style={{
-          width: '100%', borderRadius: 'inherit',
+          width: '100%', aspectRatio: box, borderRadius: 'inherit',
           background: 'var(--bg-elev-2)',
           position: 'relative', overflow: 'hidden',
           userSelect: 'none',
@@ -103,7 +105,11 @@ export function ProductImage({ product, size = 'md', carousel = false, children 
         <img
           src={allPhotos[idx]}
           alt={product.name}
-          style={{ display: 'block', width: '100%', height: 'auto', pointerEvents: 'none' }}
+          style={{
+            position: 'absolute', inset: 0,
+            display: 'block', width: '100%', height: '100%',
+            objectFit: 'contain', pointerEvents: 'none',
+          }}
         />
         <div style={{
           position: 'absolute', top: 0, left: 0, width: 8, height: '100%',
@@ -161,7 +167,7 @@ export function ProductImage({ product, size = 'md', carousel = false, children 
 
   return (
     <div className="placeholder-img" style={{
-      width: '100%', height: h, borderRadius: 'inherit',
+      width: '100%', aspectRatio: box, borderRadius: 'inherit',
       background: `radial-gradient(circle at 30% 30%, ${c}40 0%, transparent 70%), var(--bg-elev-2)`,
     }}>
       <div style={{

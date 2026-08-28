@@ -115,7 +115,7 @@ export function MobileHome({ products, go, addToCart, openProduct, cartCount = 0
           {loading ? (
             <SkeletonGrid count={4} columns={2} gap={12} />
           ) : bestSellers.length > 0 ? (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridAutoRows: '1fr', gap: 12 }}>
               {bestSellers.map(p => (
                 <ProductCard key={p.id} product={p} onTap={() => openProduct(p)} addToCart={addToCart} />
               ))}
@@ -156,7 +156,7 @@ export function MobileHome({ products, go, addToCart, openProduct, cartCount = 0
           {loading ? (
             <SkeletonGrid count={2} columns={2} gap={12} />
           ) : novidades.length > 0 ? (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridAutoRows: '1fr', gap: 12 }}>
               {novidades.slice(0, 2).map(p => (
                 <ProductCard key={p.id} product={p} onTap={() => openProduct(p)} addToCart={addToCart} />
               ))}

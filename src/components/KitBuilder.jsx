@@ -126,7 +126,7 @@ export function KitBuilder({ products, onFinish, onExit, mobile = false }) {
             onNext={next}
           />
 
-          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, gap: mobile ? 10 : 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, gridAutoRows: '1fr', gap: mobile ? 10 : 16 }}>
             {cur.items.map(p => (
               <KitTile key={p.id} product={p} picked={picked} onAdd={addItem} setQty={setQty} />
             ))}
@@ -209,7 +209,7 @@ function KitTile({ product, picked, onAdd, setQty }) {
 
   return (
     <div className="r-card" style={{
-      overflow: 'hidden', display: 'flex', flexDirection: 'column',
+      overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column',
       outline: qty > 0 ? '2px solid var(--accent)' : 'none', outlineOffset: -1,
     }}>
       <div className="r-img-wrap" style={{ position: 'relative', borderTopLeftRadius: 'inherit', borderTopRightRadius: 'inherit' }}>

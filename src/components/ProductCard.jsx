@@ -15,7 +15,7 @@ export const ProductCard = memo(function ProductCard({ product, onTap, addToCart
     : product.oldPrice ? { cls: 'tag-promo', t: 'PROMO' } : null;
 
   return (
-    <div className="r-card r-card-lift" onClick={onTap} style={{ cursor: 'pointer', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+    <div className="r-card r-card-lift" onClick={onTap} style={{ cursor: 'pointer', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column' }}>
       <div className="r-img-wrap" style={{ position: 'relative', borderTopLeftRadius: 'inherit', borderTopRightRadius: 'inherit' }}>
         <ProductImage product={product} size="sm" />
         {promoTag && (
@@ -29,18 +29,18 @@ export const ProductCard = memo(function ProductCard({ product, onTap, addToCart
         <div style={{ fontSize: 13, fontWeight: 600, lineHeight: 1.25, color: 'var(--ink)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', minHeight: 32 }}>
           {product.name}
         </div>
-        {product.rating != null && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
-            <Icon.star size={11} style={{ color: 'var(--rasta-gold)' }}/>
-            <span style={{ fontSize: 11, color: 'var(--ink-dim)' }}>{product.rating.toFixed(1)}</span>
-            {product.ratings ? <span style={{ fontSize: 10, color: 'var(--ink-mute)' }}>({product.ratings})</span> : null}
-          </div>
-        )}
-        {product.desc && (
-          <div style={{ fontSize: 11, color: 'var(--ink-mute)', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-            {product.desc}
-          </div>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2, minHeight: 15 }}>
+          {product.rating != null && (
+            <>
+              <Icon.star size={11} style={{ color: 'var(--rasta-gold)' }}/>
+              <span style={{ fontSize: 11, color: 'var(--ink-dim)' }}>{product.rating.toFixed(1)}</span>
+              {product.ratings ? <span style={{ fontSize: 10, color: 'var(--ink-mute)' }}>({product.ratings})</span> : null}
+            </>
+          )}
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--ink-mute)', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', minHeight: 31 }}>
+          {product.desc || ''}
+        </div>
         {variations.length > 0 && (
           <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 2 }}>
             {variations.map((v) => (

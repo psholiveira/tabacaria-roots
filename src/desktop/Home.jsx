@@ -101,7 +101,7 @@ export function DesktopHome({ products, go, openProduct, addToCart }) {
         {loading ? (
           <SkeletonGrid count={4} columns={4} gap={16} />
         ) : tops.length > 0 ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridAutoRows: '1fr', gap: 16 }}>
             {tops.map((p, i) => (
               <FadeIn key={p.id} delay={i * 60} style={{ height: '100%' }}>
                 <ProductCard product={p} onTap={() => openProduct(p)} addToCart={addToCart} />
@@ -116,7 +116,7 @@ export function DesktopHome({ products, go, openProduct, addToCart }) {
         {loading ? (
           <SkeletonGrid count={4} columns={4} gap={16} />
         ) : novidades.length > 0 ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridAutoRows: '1fr', gap: 16 }}>
             {novidades.slice(0, 4).map((p, i) => (
               <FadeIn key={p.id} delay={i * 60} style={{ height: '100%' }}>
                 <ProductCard product={p} onTap={() => openProduct(p)} addToCart={addToCart} />

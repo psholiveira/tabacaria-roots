@@ -87,7 +87,7 @@ export function MobileCatalog({ products, initialCat, addToCart, openProduct, on
         {loading ? (
           <SkeletonGrid count={6} columns={2} gap={12} />
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridAutoRows: '1fr', gap: 12 }}>
             {items.map(p => (
               <ProductCard key={p.id} product={p} onTap={() => openProduct(p)} addToCart={addToCart} />
             ))}

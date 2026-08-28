@@ -84,7 +84,7 @@ export function DesktopProduct({ products, product, go, openProduct, addToCart }
       {related.length > 0 && (
         <div style={{ marginTop: 70 }}>
           <SectionHeader title="Você também vai gostar" />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridAutoRows: '1fr', gap: 16 }}>
             {related.map(p => (
               <ProductCard key={p.id} product={p} onTap={() => openProduct(p)} addToCart={addToCart} />
             ))}
