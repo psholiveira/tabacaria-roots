@@ -12,7 +12,8 @@ import { VitrineRail } from '../components/VitrineRail.jsx';
 
 export function DesktopHome({ products, go, openProduct, addToCart }) {
   const loading   = useProductsLoading();
-  const novidades = products.filter(p => (p.tags || []).includes('novo'));
+  const bestSellers = products.filter(p => p.bestseller).slice(0, 4);
+  const novidades   = products.filter(p => (p.tags || []).includes('novo'));
 
   return (
     <div>
@@ -54,6 +55,22 @@ export function DesktopHome({ products, go, openProduct, addToCart }) {
             </FadeIn>
           ))}
         </div>
+      </section>
+
+      {/* ───────────────────────── MAIS VENDIDOS ───────────────────────── */}
+      <section style={{ padding: '40px clamp(16px,5vw,64px) 20px', maxWidth: 1440, margin: '0 auto' }}>
+        <FadeIn><SectionHeader title="Mais vendidos" sub="Top da casa" /></FadeIn>
+        {loading ? (
+          <SkeletonGrid count={4} columns={4} gap={16} />
+        ) : bestSellers.length > 0 ? (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridAutoRows: '1fr', gap: 16 }}>
+            {bestSellers.map((p, i) => (
+              <FadeIn key={p.id} delay={i * 60} style={{ height: '100%' }}>
+                <ProductCard product={p} onTap={() => openProduct(p)} addToCart={addToCart} />
+              </FadeIn>
+            ))}
+          </div>
+        ) : null}
       </section>
 
       {/* ───────────────────────── NOVIDADES ───────────────────────── */}
