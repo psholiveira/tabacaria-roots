@@ -98,10 +98,9 @@ export function DesktopHome({ products, go, openProduct, addToCart }) {
         .from('[data-hero-item]', { y: 34, opacity: 0, duration: 1.1, stagger: 0.14 })
         .from('[data-lion-img]', { opacity: 0, x: 90, scale: 1.12, duration: 1.6 }, 0.1);
 
-      // saída do hero + parallax do leão e da fumaça
+      // saída do hero + parallax da fumaça (o leão fica fixo no centro)
       const heroScrub = { trigger: '[data-hero]', start: 'top top', end: 'bottom top', scrub: true };
       gsap.to('[data-hero-inner]', { y: -110, opacity: 0, ease: 'none', scrollTrigger: heroScrub });
-      gsap.to('[data-lion]', { y: 160, rotate: 7, scale: 1.16, ease: 'none', scrollTrigger: heroScrub });
       root.querySelectorAll('[data-smoke]').forEach((el, i) => {
         gsap.to(el, { y: i % 2 ? -140 : 180, ease: 'none', scrollTrigger: heroScrub });
       });
@@ -216,7 +215,7 @@ export function DesktopHome({ products, go, openProduct, addToCart }) {
         position: 'relative', minHeight: 'calc(100svh - 72px)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         overflow: 'hidden', background: 'var(--rasta-green-deep)',
-        padding: 'clamp(64px,7vw,100px) clamp(16px,5vw,64px) 90px',
+        padding: 'clamp(64px,7vw,100px) clamp(16px,5vw,64px)',
       }}>
         <Smoke style={{ top: '-18%', right: '-8%', width: 'min(70vw,780px)', height: 'min(70vw,780px)' }}
           inner={{ background: 'radial-gradient(circle,#f5b528 0%,transparent 62%)', opacity: .22, filter: 'blur(10px)', animation: 'rootsDrift 18s ease-in-out infinite' }} />
@@ -224,7 +223,7 @@ export function DesktopHome({ products, go, openProduct, addToCart }) {
           inner={{ background: 'radial-gradient(circle,#c8232c 0%,transparent 60%)', opacity: .16, filter: 'blur(20px)', animation: 'rootsDrift 24s ease-in-out infinite reverse' }} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg,rgba(12,12,10,.42) 0%,rgba(13,61,29,0) 34%,rgba(12,12,10,.86) 100%)', pointerEvents: 'none' }} />
 
-        <div data-lion="" style={{ position: 'absolute', left: '50%', top: '50%', translate: '-50% -50%', width: 'min(52vw,620px)', pointerEvents: 'none' }}>
+        <div data-lion="" style={{ position: 'absolute', inset: 0, margin: 'auto', width: 'min(52vw,620px)', height: 'fit-content', pointerEvents: 'none' }}>
           <img data-lion-img="" src="/assets/logo-roots-mark.png" alt="" style={{ display: 'block', width: '100%', opacity: .16, filter: 'drop-shadow(0 40px 80px rgba(0,0,0,.6))' }} />
         </div>
 
@@ -281,14 +280,6 @@ export function DesktopHome({ products, go, openProduct, addToCart }) {
           </div>
         </div>
 
-        <button onClick={scrollToVitrine} aria-label="Rolar para a vitrine" style={{
-          position: 'absolute', bottom: 26, left: '50%', transform: 'translateX(-50%)', zIndex: 3,
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
-          background: 'transparent', border: 'none', cursor: 'pointer', color: 'rgba(246,241,228,.5)',
-        }}>
-          <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.3em', textTransform: 'uppercase' }}>Rolar</span>
-          <span data-scroll-cue="" style={{ display: 'block', width: 1, height: 34, transformOrigin: 'top', background: 'linear-gradient(180deg,rgba(246,241,228,.6),transparent)', animation: 'rootsPulse 1.8s ease-in-out infinite' }} />
-        </button>
       </section>
 
       {/* ───────────────────────── DIVISOR ───────────────────────── */}

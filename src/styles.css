@@ -94,7 +94,6 @@ html, body { background: #0c0c0a; }
 /* ============================================================
    HOME — hero + vitrine (GSAP)
    ============================================================ */
-@keyframes rootsPulse { 0%, 100% { transform: scaleY(1); opacity: .6; } 50% { transform: scaleY(.5); opacity: .18; } }
 @keyframes rootsDrift { 0% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(3%,-4%,0) scale(1.12); } 100% { transform: translate3d(0,0,0) scale(1); } }
 
 .hero-cta {
@@ -121,7 +120,7 @@ html, body { background: #0c0c0a; }
 .rail-card:hover { border-color: var(--accent); transform: translateY(-6px); }
 
 @media (prefers-reduced-motion: reduce) {
-  .roots-app [data-smoke-drift], .roots-app [data-scroll-cue] { animation: none; }
+  .roots-app [data-smoke-drift] { animation: none; }
 }
 
 /* rasta stripe accents */
