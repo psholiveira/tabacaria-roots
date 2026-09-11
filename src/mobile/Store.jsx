@@ -18,12 +18,14 @@ export function MobileStore({ onBack }) {
           <div style={{ position: 'absolute', inset: 0,
             background: 'repeating-linear-gradient(45deg, transparent 0 14px, rgba(245,181,40,0.05) 14px 15px)',
           }}/>
-          <div style={{ position: 'relative' }}>
-            <img src="/assets/logo-roots.png" alt="Roots" style={{ width: 110, height: 110, marginBottom: 14 }} />
-            <div className="display-tight" style={{ fontSize: 36, color: '#fff', lineHeight: 0.95 }}>
-              ROOTS<br/><span style={{ color: '#f5b528' }}>TABACARIA</span>
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 16 }}>
+            <img src="/assets/logo-roots.png" alt="Roots" style={{ width: 96, height: 96, flexShrink: 0, filter: 'drop-shadow(0 10px 24px rgba(0,0,0,0.4))' }} />
+            <div style={{ minWidth: 0 }}>
+              <div className="display-tight" style={{ fontSize: 34, color: '#fff', lineHeight: 0.95 }}>
+                ROOTS<br/><span style={{ color: '#f5b528' }}>TABACARIA</span>
+              </div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 8, fontStyle: 'italic' }}>"One Love, One Heart"</div>
             </div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 8, fontStyle: 'italic' }}>"One Love, One Heart"</div>
           </div>
         </div>
 

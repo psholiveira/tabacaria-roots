@@ -53,11 +53,17 @@ export function VitrineRail({ products, loading, go, openProduct, addToCart, mob
   const rootRef   = useRef(null);
   const railItems = useMemo(() => pickRailItems(products), [products]);
 
-  // largura dos cards muda com o viewport → recria o loop
+  // largura dos cards muda com o viewport → recria o loop. Só a LARGURA conta:
+  // no celular a barra de endereço some/aparece ao rolar e dispara resize só de
+  // altura — recriar o loop aí zerava a vitrine a cada rolada.
   const [resizeTick, setResizeTick] = useState(0);
   useEffect(() => {
-    let t;
-    const onResize = () => { clearTimeout(t); t = setTimeout(() => setResizeTick(n => n + 1), 200); };
+    let t, lastW = window.innerWidth;
+    const onResize = () => {
+      if (window.innerWidth === lastW) return;
+      lastW = window.innerWidth;
+      clearTimeout(t); t = setTimeout(() => setResizeTick(n => n + 1), 200);
+    };
     window.addEventListener('resize', onResize);
     return () => { clearTimeout(t); window.removeEventListener('resize', onResize); };
   }, []);
