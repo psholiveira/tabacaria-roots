@@ -7,6 +7,7 @@ import { ProductCard } from '../components/ProductCard.jsx';
 import { SkeletonGrid } from '../components/SkeletonCard.jsx';
 import { KitBuilderCTA } from '../components/KitBuilder.jsx';
 import { useProductsLoading } from '../store/products.js';
+import { useProgressiveList } from '../hooks/useProgressiveList.js';
 import { MobileHeader } from './Shell.jsx';
 
 export function MobileCatalog({ products, initialCat, addToCart, openProduct, onBack, go, cartCount = 0 }) {
@@ -23,6 +24,8 @@ export function MobileCatalog({ products, initialCat, addToCart, openProduct, on
     const priceRange = FILTERS.preco.find(p => p.id === priceId);
     return filterProducts(products, { cat, q, priceRange, sort: sort === 'relevance' ? null : sort });
   }, [products, cat, q, priceId, sort]);
+  // 2 colunas: 10 cards cobrem a primeira tela; o resto entra depois da transição
+  const visible = useProgressiveList(items, { initial: 10, step: 20, startAfter: 300 });
   const sortLabel = FILTERS.ordenar.find(o => o.id === sort)?.label || 'Relevância';
 
   return (
@@ -88,7 +91,7 @@ export function MobileCatalog({ products, initialCat, addToCart, openProduct, on
           <SkeletonGrid count={6} columns={2} gap={12} />
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridAutoRows: '1fr', gap: 12 }}>
-            {items.map(p => (
+            {visible.map(p => (
               <ProductCard key={p.id} product={p} onTap={() => openProduct(p)} addToCart={addToCart} />
             ))}
           </div>

@@ -1,12 +1,17 @@
 // components/KitBuilder.jsx — "Monte seu Kit": wizard que passa por todas as
 // categorias, uma por vez. O cliente escolhe o que quiser e pula o resto.
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef, useEffect } from 'react';
+import gsap from 'gsap';
+import { pop, shake, collapseOut, reducedMotion } from '../lib/motion.js';
 import { CATEGORIES, CAT_COLORS, formatBRL } from '../data.js';
 import { Icon } from './Icons.jsx';
 import { ProductImage } from './ProductImage.jsx';
 import { SkeletonGrid } from './SkeletonCard.jsx';
 import { useProductsLoading } from '../store/products.js';
+import { useProgressiveList } from '../hooks/useProgressiveList.js';
+
+const NO_ITEMS = [];
 
 const keyOf = (product, variation) => `${product.id}|${variation || ''}`;
 
@@ -42,7 +47,8 @@ export function KitBuilder({ products, onFinish, onExit, mobile = false }) {
     return { ...prev, [k]: { ...prev[k], qty } };
   });
 
-  const goTo = (i) => { setStep(i); window.scrollTo(0, 0); };
+  const dirRef = useRef(1); // 1 = avançou, -1 = voltou (direção da animação da etapa)
+  const goTo = (i) => { dirRef.current = i >= step ? 1 : -1; setStep(i); window.scrollTo(0, 0); };
   const next = () => goTo(Math.min(step + 1, steps.length));
   const prev = () => goTo(Math.max(step - 1, 0));
 
@@ -56,6 +62,12 @@ export function KitBuilder({ products, onFinish, onExit, mobile = false }) {
 
   const pad  = mobile ? 16 : 36;
   const cols = mobile ? 2 : 4;
+
+  // etapas como "Sedas" têm 90+ itens: só a primeira tela entra junto com a
+  // animação da etapa; o resto chega em lotes quando o browser está ocioso.
+  // (hook fica antes dos returns condicionais abaixo — ordem dos hooks é fixa)
+  const initialTiles = mobile ? 10 : 16;
+  const visibleItems = useProgressiveList(steps[step]?.items ?? NO_ITEMS, { initial: initialTiles, step: mobile ? 20 : 32, startAfter: 500 });
 
   if (loading) {
     return (
@@ -90,6 +102,7 @@ export function KitBuilder({ products, onFinish, onExit, mobile = false }) {
       />
 
       {onSummaryStep ? (
+        <StepPane key="summary" dir={dirRef.current}>
         <KitSummary
           list={list} total={total} count={count}
           skipped={skipped} steps={steps} mobile={mobile}
@@ -99,11 +112,13 @@ export function KitBuilder({ products, onFinish, onExit, mobile = false }) {
           onGoTo={goTo}
           onFinish={() => onFinish(list)}
         />
+        </StepPane>
       ) : (
         <>
           <Progress steps={steps} step={step} picked={picked} skipped={skipped} onGoTo={goTo} />
 
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12, margin: '18px 0 14px', flexWrap: 'wrap' }}>
+          <StepPane key={step} dir={dirRef.current}>
+          <div className="kit-step-head" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12, margin: '18px 0 14px', flexWrap: 'wrap' }}>
             <div>
               <div style={{ fontSize: 10.5, color: 'var(--ink-mute)', letterSpacing: '0.16em', textTransform: 'uppercase' }}>
                 Etapa {step + 1} de {steps.length}
@@ -127,10 +142,12 @@ export function KitBuilder({ products, onFinish, onExit, mobile = false }) {
           />
 
           <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, gridAutoRows: '1fr', gap: mobile ? 10 : 16 }}>
-            {cur.items.map(p => (
-              <KitTile key={p.id} product={p} picked={picked} onAdd={addItem} setQty={setQty} />
+            {visibleItems.map((p, i) => (
+              <KitTile key={p.id} product={p} picked={picked} onAdd={addItem} setQty={setQty}
+                enterIndex={i < initialTiles ? i : undefined} />
             ))}
           </div>
+          </StepPane>
 
           <StepFooter
             mobile={mobile}
@@ -147,8 +164,23 @@ export function KitBuilder({ products, onFinish, onExit, mobile = false }) {
   );
 }
 
+// ─── Painel da etapa: entra deslizando na direção da navegação ────────────
+// Animação de entrada em CSS (.enter-step em styles.css): a direção vai por
+// custom property e cada tile/linha recebe seu índice pra cascata. Sem GSAP aqui
+// de propósito — gsap.from em dezenas de elementos recém-montados força
+// recálculos de layout em série e trava a troca de etapa.
+function StepPane({ dir, children }) {
+  return (
+    <div className="enter-step" style={{ '--enter-x': `${24 * dir}px`, '--head-x': `${40 * dir}px` }}>
+      {children}
+    </div>
+  );
+}
+
 // ─── Cabeçalho ────────────────────────────────────────────────────────────
 function KitHeader({ mobile, onExit, count, onSummary }) {
+  const chipRef = useRef(null);
+  useEffect(() => { pop(chipRef.current, 1.25); }, [count]);
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '8px 0 14px' }}>
       <button onClick={onExit} aria-label="Sair do Monte seu Kit" style={{
@@ -163,7 +195,7 @@ function KitHeader({ mobile, onExit, count, onSummary }) {
 
       <div style={{ minWidth: 36, display: 'flex', justifyContent: 'flex-end' }}>
         {onSummary ? (
-          <button onClick={onSummary} className="chip active" style={{ fontWeight: 700 }}>
+          <button ref={chipRef} onClick={onSummary} className="chip active" style={{ fontWeight: 700 }}>
             {count} {count === 1 ? 'item' : 'itens'}
           </button>
         ) : <div style={{ width: 36 }}/>}
@@ -175,9 +207,17 @@ function KitHeader({ mobile, onExit, count, onSummary }) {
 // ─── Barra de progresso (segmentos clicáveis) ─────────────────────────────
 function Progress({ steps, step, picked, skipped, onGoTo }) {
   const chosenIn = (catId) => Object.values(picked).some(i => i.product.cat === catId);
+  const barRef = useRef(null);
+
+  // segmento ativo "infla" quando a etapa muda
+  useEffect(() => {
+    const el = barRef.current?.children[step];
+    if (!el || reducedMotion()) return;
+    gsap.fromTo(el, { scaleY: 2.6 }, { scaleY: 1, duration: 0.7, ease: 'elastic.out(1,0.4)', clearProps: 'transform' });
+  }, [step]);
 
   return (
-    <div style={{ display: 'flex', gap: 3 }}>
+    <div ref={barRef} style={{ display: 'flex', gap: 3 }}>
       {steps.map((s, i) => {
         const bg = i === step ? 'var(--accent)'
           : chosenIn(s.id) ? 'var(--rasta-green)'
@@ -201,21 +241,55 @@ function Progress({ steps, step, picked, skipped, onGoTo }) {
 }
 
 // ─── Card de produto do wizard ────────────────────────────────────────────
-function KitTile({ product, picked, onAdd, setQty }) {
+function KitTile({ product, picked, onAdd, setQty, enterIndex }) {
   const variations = product.variations || [];
   const [variation, setVariation] = useState(variations[0] ?? '');
   const k = keyOf(product, variation);
   const qty = picked[k]?.qty || 0;
 
+  const tileRef  = useRef(null);
+  const badgeRef = useRef(null);
+  const ctrlRef  = useRef(null);
+  const prevQty  = useRef(qty);
+
+  useEffect(() => {
+    const was = prevQty.current; prevQty.current = qty;
+    if (reducedMotion() || qty === was) return;
+    if (was === 0 && qty > 0) {
+      // entrou no kit: card dá um pulo, badge e stepper aparecem
+      gsap.timeline()
+        .fromTo(tileRef.current, { scale: 0.96 }, { scale: 1, duration: 0.6, ease: 'elastic.out(1,0.5)', clearProps: 'transform' })
+        .fromTo(badgeRef.current, { scale: 0 }, { scale: 1, duration: 0.6, ease: 'elastic.out(1.2,0.45)' }, 0.05)
+        .fromTo(ctrlRef.current, { x: 14, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.4, ease: 'expo.out' }, 0);
+    } else if (qty > was) {
+      pop(badgeRef.current, 1.5);
+      pop(ctrlRef.current?.querySelector('[data-qty]'), 1.5);
+    } else {
+      pop(badgeRef.current, 0.7);
+      pop(ctrlRef.current?.querySelector('[data-qty]'), 0.7);
+    }
+  }, [qty]);
+
+  const decrease = () => {
+    if (qty > 1) { setQty(k, qty - 1); return; }
+    if (reducedMotion()) { setQty(k, 0); return; }
+    // saiu do kit: badge e stepper somem, card balança de leve, aí o estado muda
+    gsap.timeline({ onComplete: () => setQty(k, 0) })
+      .to(badgeRef.current, { scale: 0, duration: 0.22, ease: 'back.in(2)' })
+      .to(ctrlRef.current, { x: 14, autoAlpha: 0, duration: 0.22, ease: 'power2.in' }, 0);
+    shake(tileRef.current);
+  };
+
   return (
-    <div className="r-card" style={{
+    <div ref={tileRef} className="r-card kit-tile" data-enter={enterIndex != null ? '' : undefined} style={{
       overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column',
       outline: qty > 0 ? '2px solid var(--accent)' : 'none', outlineOffset: -1,
+      '--i': enterIndex,
     }}>
       <div className="r-img-wrap" style={{ position: 'relative', borderTopLeftRadius: 'inherit', borderTopRightRadius: 'inherit' }}>
         <ProductImage product={product} size="sm" />
         {qty > 0 && (
-          <span style={{
+          <span ref={badgeRef} style={{
             position: 'absolute', top: 8, right: 8,
             background: 'var(--accent)', color: 'var(--accent-ink)',
             width: 24, height: 24, borderRadius: 999,
@@ -238,8 +312,8 @@ function KitTile({ product, picked, onAdd, setQty }) {
 
         {variations.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 2 }}>
-            {variations.map(v => (
-              <button key={v} onClick={() => setVariation(v)} style={{
+            {variations.map((v, i) => (
+              <button key={`${i}-${v}`} onClick={() => setVariation(v)} style={{
                 padding: '2px 7px', borderRadius: 5, fontSize: 10, fontWeight: 600,
                 border: `1.5px solid ${variation === v ? 'var(--accent)' : 'var(--line-strong)'}`,
                 background: variation === v ? 'var(--accent)' : 'transparent',
@@ -261,9 +335,9 @@ function KitTile({ product, picked, onAdd, setQty }) {
           </div>
 
           {qty > 0 ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <StepBtn onClick={() => setQty(k, qty - 1)} label="Diminuir"><Icon.minus size={12}/></StepBtn>
-              <span style={{ fontSize: 12.5, fontWeight: 700, minWidth: 12, textAlign: 'center' }}>{qty}</span>
+            <div ref={ctrlRef} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <StepBtn onClick={decrease} label="Diminuir"><Icon.minus size={12}/></StepBtn>
+              <span data-qty="" style={{ fontSize: 12.5, fontWeight: 700, minWidth: 12, textAlign: 'center', display: 'inline-block' }}>{qty}</span>
               <StepBtn onClick={() => setQty(k, qty + 1)} label="Aumentar" filled><Icon.plus size={12}/></StepBtn>
             </div>
           ) : (
@@ -318,6 +392,8 @@ function StepTopNav({ mobile, last, onPrev, onSkip, onNext }) {
 
 // ─── Rodapé fixo do passo ─────────────────────────────────────────────────
 function StepFooter({ mobile, last, count, total, onPrev, onSkip, onNext }) {
+  const countRef = useRef(null);
+  useEffect(() => { pop(countRef.current, 1.15); }, [count]);
   return (
     <div style={{
       position: 'sticky', bottom: 0, zIndex: 20, marginTop: 20,
@@ -340,7 +416,7 @@ function StepFooter({ mobile, last, count, total, onPrev, onSkip, onNext }) {
         </button>
       </div>
       {count > 0 && (
-        <div style={{ padding: '8px 2px 10px', fontSize: 11.5, color: 'var(--ink-mute)', textAlign: 'center' }}>
+        <div ref={countRef} style={{ padding: '8px 2px 10px', fontSize: 11.5, color: 'var(--ink-mute)', textAlign: 'center' }}>
           {count} {count === 1 ? 'item no kit' : 'itens no kit'} · <span style={{ color: 'var(--ink-dim)', fontWeight: 600 }}>{formatBRL(total)}</span>
         </div>
       )}
@@ -351,6 +427,16 @@ function StepFooter({ mobile, last, count, total, onPrev, onSkip, onNext }) {
 // ─── Resumo final ─────────────────────────────────────────────────────────
 function KitSummary({ list, total, count, skipped, steps, mobile, setQty, onBack, onRestart, onGoTo, onFinish }) {
   const skippedSteps = steps.filter(s => skipped.includes(s.id));
+  const listRef  = useRef(null);
+  const totalRef = useRef(null);
+  useEffect(() => { pop(totalRef.current, 1.1); }, [total]);
+
+  const rowEl = (k) => listRef.current?.querySelector(`[data-kit-key="${CSS.escape(k)}"]`);
+  const decrease = (k, qty) => {
+    if (qty > 1) { setQty(k, qty - 1); pop(rowEl(k)?.querySelector('[data-qty]'), 0.7); return; }
+    collapseOut(rowEl(k), () => setQty(k, 0));
+  };
+  const increase = (k, qty) => { setQty(k, qty + 1); pop(rowEl(k)?.querySelector('[data-qty]'), 1.5); };
 
   return (
     <div>
@@ -367,11 +453,11 @@ function KitSummary({ list, total, count, skipped, steps, mobile, setQty, onBack
       </div>
 
       {list.length > 0 ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {list.map(({ product, variation, qty }) => {
+        <div ref={listRef} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {list.map(({ product, variation, qty }, i) => {
             const k = keyOf(product, variation);
             return (
-              <div key={k} className="r-card" style={{ display: 'flex', gap: 12, padding: 10, alignItems: 'center' }}>
+              <div key={k} data-kit-key={k} data-enter="" className="r-card kit-row" style={{ display: 'flex', gap: 12, padding: 10, alignItems: 'center', '--i': i }}>
                 <div style={{ width: 62, height: 62, flexShrink: 0, borderRadius: 8, overflow: 'hidden' }}>
                   <ProductImage product={product} size="sm" />
                 </div>
@@ -381,9 +467,9 @@ function KitSummary({ list, total, count, skipped, steps, mobile, setQty, onBack
                   <div className="display" style={{ fontSize: 14, marginTop: 4 }}>{formatBRL(qty * product.price)}</div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                  <StepBtn onClick={() => setQty(k, qty - 1)} label="Diminuir"><Icon.minus size={12}/></StepBtn>
-                  <span style={{ fontSize: 13, fontWeight: 700, minWidth: 14, textAlign: 'center' }}>{qty}</span>
-                  <StepBtn onClick={() => setQty(k, qty + 1)} label="Aumentar" filled><Icon.plus size={12}/></StepBtn>
+                  <StepBtn onClick={() => decrease(k, qty)} label="Diminuir"><Icon.minus size={12}/></StepBtn>
+                  <span data-qty="" style={{ fontSize: 13, fontWeight: 700, minWidth: 14, textAlign: 'center', display: 'inline-block' }}>{qty}</span>
+                  <StepBtn onClick={() => increase(k, qty)} label="Aumentar" filled><Icon.plus size={12}/></StepBtn>
                 </div>
               </div>
             );
@@ -421,7 +507,7 @@ function KitSummary({ list, total, count, skipped, steps, mobile, setQty, onBack
       }}>
         <div style={{ paddingTop: 18, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <div style={{ fontSize: 11.5, color: 'var(--ink-mute)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Total do kit</div>
-          <div className="display" style={{ fontSize: 22 }}>{formatBRL(total)}</div>
+          <div ref={totalRef} className="display" style={{ fontSize: 22, display: 'inline-block' }}>{formatBRL(total)}</div>
         </div>
         <div style={{ display: 'flex', gap: 8, paddingBottom: 10 }}>
           <button onClick={onBack} className="btn-ghost" aria-label="Voltar" style={{

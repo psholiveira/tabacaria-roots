@@ -1,13 +1,15 @@
 ﻿// admin/Admin.jsx — painel admin (Supabase Auth + Storage)
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { CATEGORIES, ADMIN_CATEGORIES, formatBRL } from '../data.js';
 import { Icon } from '../components/Icons.jsx';
 import { ProductImage } from '../components/ProductImage.jsx';
+import { compressImage } from '../lib/images.js';
 import { ProductCard } from '../components/ProductCard.jsx';
 import { supabase } from '../lib/supabase.js';
 import { useIsMobile } from '../hooks/useIsMobile.js';
 import { useIdleLogout } from '../hooks/useIdleLogout.js';
+import { useProgressiveList } from '../hooks/useProgressiveList.js';
 import { SecurityPanel } from './SecurityPanel.jsx';
 import {
   useProducts, useProductsLoading, upsertProduct, deleteProduct, newProductId,
@@ -37,11 +39,13 @@ export function AdminApp() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  const items = products.filter(p => {
+  const items = useMemo(() => products.filter(p => {
     if (catFilter !== 'all' && p.cat !== catFilter) return false;
     if (filter && !p.name.toLowerCase().includes(filter.toLowerCase())) return false;
     return true;
-  });
+  }), [products, catFilter, filter]);
+  // ~200 linhas: monta as primeiras na hora e o resto em lotes, sem travar a tela
+  const visibleItems = useProgressiveList(items, { initial: 30, step: 40, startAfter: 100 });
 
   const stats = {
     total:       products.length,
@@ -179,7 +183,7 @@ const handleLogout = async () => {
           </div>
         ) : isMobile ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {items.map(p => (
+            {visibleItems.map(p => (
               <div key={p.id} className="r-card" style={{ padding: 12, display: 'flex', gap: 12, opacity: p.hidden ? 0.55 : 1 }}>
                 <div style={{ width: 56, height: 56, borderRadius: 8, overflow: 'hidden', flexShrink: 0 }}>
                   <ProductImage product={p} size="sm"/>
@@ -278,7 +282,7 @@ const handleLogout = async () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {items.map(p => (
+                  {visibleItems.map(p => (
                     <tr key={p.id} style={{ borderTop: '1px solid var(--line)', opacity: p.hidden ? 0.55 : 1 }}>
                       <td style={{ padding: '10px 14px' }}>
                         <div style={{ width: 46, height: 46, borderRadius: 6, overflow: 'hidden' }}>
@@ -467,12 +471,13 @@ function AdminForm({ product, isMobile, onSave, onCancel, onError }) {
         continue;
       }
 
-      const ext  = file.name.split('.').pop();
+      // comprime no navegador antes de subir — o catálogo não precisa de 4000px
+      const { blob, ext } = await compressImage(file);
       const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
       const { error: uploadError } = await supabase.storage
         .from('products')
-        .upload(path, file, { cacheControl: '3600', upsert: false });
+        .upload(path, blob, { cacheControl: '31536000', upsert: false, contentType: blob.type || file.type });
 
       if (uploadError) {
         setPhotoError(`Erro no upload: ${uploadError.message}`);

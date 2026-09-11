@@ -1,6 +1,6 @@
 // mobile/MobileApp.jsx — orquestra todas as telas mobile
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useCart } from '../hooks/useCart.js';
 import { useProducts } from '../store/products.js';
 import { AgeGate, BottomNav } from './Shell.jsx';
@@ -44,7 +44,8 @@ export function MobileApp() {
   const [toast, setToast] = useState(null);
   const cart = useCart();
   const allProducts = useProducts();
-  const products = allProducts.filter(p => !p.hidden);
+  // memoizado: a identidade estável evita resetar a lista progressiva do catálogo a cada render
+  const products = useMemo(() => allProducts.filter(p => !p.hidden), [allProducts]);
 
   const addToCart = (p, v) => { cart.add(p, v); setToast({ product: p, id: Date.now() }); };
 

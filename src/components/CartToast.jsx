@@ -19,7 +19,7 @@ export function CartToast({ product, onClose, onViewCart, mobile = false }) {
         zIndex: 400,
         ...(mobile
           ? { bottom: 78, left: 12, right: 12 }
-          : { top: 20, right: 20, maxWidth: 320, width: '100%' }
+          : { top: 86, right: 20, maxWidth: 320, width: '100%' }
         ),
         background: 'var(--bg-elev-2)',
         border: '1px solid var(--line-strong)',

@@ -1,6 +1,6 @@
 // desktop/DesktopApp.jsx — orquestra desktop
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useCart } from '../hooks/useCart.js';
 import { useProducts } from '../store/products.js';
 import { DesktopHeader, DesktopFooter } from './Chrome.jsx';
@@ -12,6 +12,8 @@ import { DesktopCartDrawer } from './CartDrawer.jsx';
 import { CartToast } from '../components/CartToast.jsx';
 import { AgeGate } from '../mobile/Shell.jsx';
 import { KitBuilder } from '../components/KitBuilder.jsx';
+import { KineticMenu } from '../components/KineticMenu.jsx';
+import { ScreenTransition } from '../components/ScreenTransition.jsx';
 
 const AGE_KEY = 'roots:age-confirmed';
 
@@ -41,11 +43,18 @@ export function DesktopApp() {
     try { return localStorage.getItem(AGE_KEY) === '1'; } catch { return false; }
   });
   const [cartOpen, setCartOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [toast, setToast] = useState(null);
   const [catalogQ, setCatalogQ] = useState('');
   const cart = useCart();
+  // direção da animação de troca de tela (ordem das abas do menu)
+  const SCREEN_ORDER = ['home', 'catalog', 'kit', 'store', 'product'];
+  const prevScreen = useRef(screen);
+  const dir = SCREEN_ORDER.indexOf(screen) >= SCREEN_ORDER.indexOf(prevScreen.current) ? 1 : -1;
+  useEffect(() => { prevScreen.current = screen; }, [screen]);
   const allProducts = useProducts();
-  const products = allProducts.filter(p => !p.hidden);
+  // memoizado: a identidade estável evita resetar a lista progressiva do catálogo a cada render
+  const products = useMemo(() => allProducts.filter(p => !p.hidden), [allProducts]);
 
   // Restaura produto pelo ID quando os produtos carregam
   useEffect(() => {
@@ -67,6 +76,7 @@ export function DesktopApp() {
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
 
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
   const go = (s, p = {}) => { setHash(s, p); setScreen(s); setParams(p); if (s !== 'catalog') setCatalogQ(''); window.scrollTo(0, 0); };
   const openProduct = (p) => { setHash('product', {}, p.id); setProduct(p); setScreen('product'); window.scrollTo(0, 0); };
   const addToCart = (p, v) => { cart.add(p, v); setToast({ product: p, id: Date.now() }); };
@@ -89,14 +99,16 @@ export function DesktopApp() {
 
   return (
     <div className="roots-app" style={{ minHeight: '100dvh' }}>
-      <DesktopHeader cart={cart} go={go} screen={screen} onOpenCart={() => setCartOpen(true)} searchQ={catalogQ} onSearchQ={setCatalogQ} />
-      <div key={screen} style={{ animation: 'page-enter 0.28s ease-out' }}>
+      <DesktopHeader cart={cart} go={go} screen={screen} onOpenCart={() => setCartOpen(true)} searchQ={catalogQ} onSearchQ={setCatalogQ}
+        menuOpen={menuOpen} onToggleMenu={() => setMenuOpen(o => !o)} lastAdded={toast} />
+      <KineticMenu open={menuOpen} onClose={closeMenu} go={go} screen={screen} />
+      <ScreenTransition key={screen} dir={dir}>
         {screen === 'home' && <DesktopHome products={products} go={go} openProduct={openProduct} addToCart={addToCart} />}
         {screen === 'catalog' && <DesktopCatalog products={products} initialCat={params.cat} openProduct={openProduct} addToCart={addToCart} q={catalogQ} setQ={setCatalogQ} go={go} />}
         {screen === 'kit' && <KitBuilder products={products} onFinish={addKitToCart} onExit={() => go('catalog')} />}
         {screen === 'product' && product && <DesktopProduct products={products} product={product} go={go} openProduct={openProduct} addToCart={addToCart} />}
         {screen === 'store' && <DesktopStore />}
-      </div>
+      </ScreenTransition>
       <DesktopFooter go={go} />
       {cartOpen && <DesktopCartDrawer cart={cart} onClose={() => setCartOpen(false)} />}
       {toast && (

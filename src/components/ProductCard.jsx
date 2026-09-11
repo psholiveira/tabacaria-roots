@@ -15,7 +15,7 @@ export const ProductCard = memo(function ProductCard({ product, onTap, addToCart
     : product.oldPrice ? { cls: 'tag-promo', t: 'PROMO' } : null;
 
   return (
-    <div className="r-card r-card-lift" onClick={onTap} style={{ cursor: 'pointer', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div className="r-card r-card-lift r-pcard" onClick={onTap} style={{ cursor: 'pointer', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column' }}>
       <div className="r-img-wrap" style={{ position: 'relative', borderTopLeftRadius: 'inherit', borderTopRightRadius: 'inherit' }}>
         <ProductImage product={product} size="sm" />
         {promoTag && (
@@ -43,9 +43,9 @@ export const ProductCard = memo(function ProductCard({ product, onTap, addToCart
         </div>
         {variations.length > 0 && (
           <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 2 }}>
-            {variations.map((v) => (
+            {variations.map((v, i) => (
               <button
-                key={v}
+                key={`${i}-${v}`}
                 onClick={(e) => { e.stopPropagation(); setSelectedVar(v); }}
                 style={{
                   padding: '2px 7px', borderRadius: 5, fontSize: 10, fontWeight: 600,

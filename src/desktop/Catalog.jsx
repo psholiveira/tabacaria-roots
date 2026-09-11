@@ -5,6 +5,7 @@ import { CATEGORIES, FILTERS, filterProducts } from '../data.js';
 import { ProductCard } from '../components/ProductCard.jsx';
 import { SkeletonGrid } from '../components/SkeletonCard.jsx';
 import { useProductsLoading } from '../store/products.js';
+import { useProgressiveList } from '../hooks/useProgressiveList.js';
 import { KitBuilderCTA } from '../components/KitBuilder.jsx';
 import { Label } from '../mobile/Shell.jsx';
 
@@ -20,6 +21,8 @@ export function DesktopCatalog({ products, initialCat, openProduct, addToCart, q
     const priceRange = FILTERS.preco.find(p => p.id === priceId);
     return filterProducts(products, { cat, q, priceRange, sort: sort === 'relevance' ? null : sort });
   }, [products, cat, q, priceId, sort]);
+  // 3 colunas: 15 cards cobrem a primeira tela; o resto entra depois da transição
+  const visible = useProgressiveList(items, { initial: 15, step: 30, startAfter: 650 });
 
   return (
     <div style={{ padding: '40px 36px 80px', display: 'grid', gridTemplateColumns: '230px 1fr', gap: 36, maxWidth: 1440, margin: '0 auto' }}>
@@ -84,7 +87,7 @@ export function DesktopCatalog({ products, initialCat, openProduct, addToCart, q
           <SkeletonGrid count={6} columns={3} gap={16} />
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gridAutoRows: '1fr', gap: 16 }}>
-            {items.map(p => (
+            {visible.map(p => (
               <ProductCard key={p.id} product={p} onTap={() => openProduct(p)} addToCart={addToCart} />
             ))}
           </div>

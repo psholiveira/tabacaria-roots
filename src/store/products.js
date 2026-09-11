@@ -65,8 +65,33 @@ function toDb(p) {
   };
 }
 
+// ─── Cache local (stale-while-revalidate) ─────────────────────────────────
+// Visita repetida mostra o catálogo na hora com a última lista salva e busca
+// a versão fresca do Supabase em segundo plano.
+const CACHE_KEY = 'roots:products:v1';
+
+function readCache() {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) && parsed.length ? parsed : null;
+  } catch { return null; }
+}
+
+function writeCache(list) {
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify(list)); } catch {}
+}
+
 // ─── Init ─────────────────────────────────────────────────────────────────
 export async function initProducts() {
+  const cached = readCache();
+  if (cached) {
+    _products = cached;
+    _loading  = false;
+    notify();
+  }
+
   try {
     const { data, error } = await supabase
       .from('products')
@@ -78,9 +103,10 @@ export async function initProducts() {
     _products = data.map(fromDb);
     _loading = false;
     _error   = null;
+    writeCache(_products);
   } catch (err) {
     console.error('[products] Falha ao carregar do Supabase:', err.message);
-    _products = [];
+    if (!cached) _products = [];
     _loading = false;
     _error   = err.message;
   }
@@ -102,6 +128,7 @@ export async function upsertProduct(p) {
   _products = idx >= 0
     ? _products.map((x, i) => (i === idx ? updated : x))
     : [..._products, updated];
+  writeCache(_products);
   notify();
   return updated;
 }
@@ -110,6 +137,7 @@ export async function deleteProduct(id) {
   const { error } = await supabase.from('products').delete().eq('id', id);
   if (error) throw error;
   _products = _products.filter(x => x.id !== id);
+  writeCache(_products);
   notify();
 }
 

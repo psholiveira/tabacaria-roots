@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { CAT_COLORS } from '../data.js';
+import { imgSrcSet } from '../lib/images.js';
 
 const Silhouettes = {
   narguile: (
@@ -54,13 +55,15 @@ const Silhouettes = {
   ),
 };
 
-export function ProductImage({ product, size = 'md', carousel = false, ratio, children }) {
+export function ProductImage({ product, size = 'md', carousel = false, ratio, priority = false, children }) {
   const allPhotos = product.photos?.length > 0
     ? product.photos
     : (product.photo ? [product.photo] : []);
 
   const [idx, setIdx] = useState(0);
   const touchX = useRef(null);
+  // se a versão otimizada falhar (ex: transformação desativada), cai pro original
+  const [failed, setFailed] = useState(() => new Set());
 
   const c = CAT_COLORS[product.cat] || '#3a3a35';
   // proporção fixa por tamanho — mantém todos os cards com a mesma altura de imagem.
@@ -103,8 +106,17 @@ export function ProductImage({ product, size = 'md', carousel = false, ratio, ch
         onTouchEnd={multi ? onTouchEnd : undefined}
       >
         <img
-          src={allPhotos[idx]}
+          // loading/decoding precisam vir ANTES de src: o browser dispara o download
+          // assim que src é definido, e só respeita lazy se já souber disso.
+          loading={priority || carousel ? 'eager' : 'lazy'}
+          decoding="async"
+          fetchpriority={priority || carousel ? 'high' : 'low'}
           alt={product.name}
+          {...(failed.has(allPhotos[idx]) ? { src: allPhotos[idx] } : imgSrcSet(allPhotos[idx], size))}
+          onError={() => {
+            const url = allPhotos[idx];
+            if (!failed.has(url)) setFailed(prev => new Set(prev).add(url));
+          }}
           style={{
             position: 'absolute', inset: 0,
             display: 'block', width: '100%', height: '100%',
