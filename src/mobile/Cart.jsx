@@ -1,11 +1,26 @@
 // mobile/Cart.jsx — Sacola
 
+import { useEffect, useRef } from 'react';
+import { pop, shake, collapseOut } from '../lib/motion.js';
 import { formatBRL } from '../data.js';
 import { Icon } from '../components/Icons.jsx';
 import { ProductImage } from '../components/ProductImage.jsx';
 import { MobileHeader, Row } from './Shell.jsx';
 
 export function MobileCart({ cart, onBack, go }) {
+  const listRef  = useRef(null);
+  const totalRef = useRef(null);
+
+  // mesmo motion do drawer desktop: remove recolhendo, contador pula, total pulsa
+  const rowEl = (key) => listRef.current?.querySelector(`[data-cart-key="${CSS.escape(key)}"]`);
+  const removeItem = (key) => collapseOut(rowEl(key), () => cart.remove(key));
+  const bump = (key, fn) => { fn(key); pop(rowEl(key)?.querySelector('[data-qty]'), 1.45); };
+  const dec = (key, qty) => {
+    if (qty <= 1) { shake(rowEl(key)); return; }
+    bump(key, cart.dec);
+  };
+  useEffect(() => { pop(totalRef.current, 1.12); }, [cart.total]);
+
   if (cart.items.length === 0) {
     return (
       <div style={{ padding: 0 }}>
@@ -32,9 +47,9 @@ export function MobileCart({ cart, onBack, go }) {
   return (
     <div style={{ paddingBottom: 24 }}>
       <MobileHeader title="Sacola" onBack={onBack} />
-      <div style={{ padding: '0 16px' }}>
-        {cart.items.map(item => (
-          <div key={item.key} className="r-card" style={{ display: 'flex', gap: 12, padding: 10, marginBottom: 10 }}>
+      <div ref={listRef} className="enter-step" style={{ padding: '0 16px', '--enter-x': '0px' }}>
+        {cart.items.map((item, i) => (
+          <div key={item.key} data-cart-key={item.key} data-enter="" className="r-card cart-row" style={{ display: 'flex', gap: 12, padding: 10, marginBottom: 10, '--i': i }}>
             <div style={{ width: 72, height: 72, borderRadius: 8, overflow: 'hidden', flexShrink: 0 }}>
               <ProductImage product={item.product} size="sm" />
             </div>
@@ -44,14 +59,14 @@ export function MobileCart({ cart, onBack, go }) {
               {item.variation && <div style={{ fontSize: 10.5, color: 'var(--ink-mute)', marginTop: 3 }}>{item.variation}</div>}
               <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 2, border: '1px solid var(--line)', borderRadius: 99, padding: 2 }}>
-                  <button onClick={() => cart.dec(item.key)} style={{ width: 22, height: 22, border: 'none', background: 'transparent', color: 'var(--ink)', cursor: 'pointer' }}><Icon.minus size={11}/></button>
-                  <span style={{ minWidth: 16, textAlign: 'center', fontWeight: 700, fontSize: 12 }}>{item.qty}</span>
-                  <button onClick={() => cart.inc(item.key)} style={{ width: 22, height: 22, border: 'none', background: 'transparent', color: 'var(--ink)', cursor: 'pointer' }}><Icon.plus size={11}/></button>
+                  <button onClick={() => dec(item.key, item.qty)} style={{ width: 22, height: 22, border: 'none', background: 'transparent', color: 'var(--ink)', cursor: 'pointer' }}><Icon.minus size={11}/></button>
+                  <span data-qty="" style={{ minWidth: 16, textAlign: 'center', fontWeight: 700, fontSize: 12, display: 'inline-block' }}>{item.qty}</span>
+                  <button onClick={() => bump(item.key, cart.inc)} style={{ width: 22, height: 22, border: 'none', background: 'transparent', color: 'var(--ink)', cursor: 'pointer' }}><Icon.plus size={11}/></button>
                 </div>
                 <div className="display" style={{ fontSize: 14 }}>{formatBRL(item.product.price * item.qty)}</div>
               </div>
             </div>
-            <button onClick={() => cart.remove(item.key)} style={{ background: 'transparent', border: 'none', color: 'var(--ink-mute)', cursor: 'pointer', alignSelf: 'flex-start', padding: 4 }}>
+            <button onClick={() => removeItem(item.key)} aria-label="Remover" style={{ background: 'transparent', border: 'none', color: 'var(--ink-mute)', cursor: 'pointer', alignSelf: 'flex-start', padding: 4 }}>
               <Icon.trash size={15}/>
             </button>
           </div>
@@ -62,7 +77,7 @@ export function MobileCart({ cart, onBack, go }) {
           <Row k="Entrega" v="A combinar" muted />
           <div style={{ height: 1, background: 'var(--line)', margin: '6px 0' }}/>
           <Row k={<span className="display" style={{ fontSize: 14, letterSpacing: '0.04em' }}>TOTAL</span>}
-               v={<span className="display-tight" style={{ fontSize: 24, color: 'var(--accent)' }}>{formatBRL(cart.total)}</span>}/>
+               v={<span ref={totalRef} className="display-tight" style={{ fontSize: 24, color: 'var(--accent)', display: 'inline-block' }}>{formatBRL(cart.total)}</span>}/>
         </div>
       </div>
 

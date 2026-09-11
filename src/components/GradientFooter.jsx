@@ -37,6 +37,7 @@ export function GradientFooter({
   children,
   gradientHeight = '40vh', // altura da faixa; também é a distância de scroll da revelação
   minReveal = 0.045,       // tira fina no chão antes da revelação (0 = escondida)
+  bottom = 0,              // afasta a faixa do chão (ex: altura da bottom nav no mobile)
   bars = 9,
   blur = 15,
   peak = 0.98,
@@ -88,7 +89,7 @@ export function GradientFooter({
         ref={bandRef}
         aria-hidden
         style={{
-          position: 'fixed', left: 0, right: 0, bottom: 0,
+          position: 'fixed', left: 0, right: 0, bottom,
           height: gradientHeight, pointerEvents: 'none',
           transformOrigin: 'bottom', transform: `scaleY(${progress})`,
           willChange: 'transform',

@@ -6,10 +6,12 @@ import { ProductCard } from '../components/ProductCard.jsx';
 import { SkeletonGrid } from '../components/SkeletonCard.jsx';
 import { useProductsLoading } from '../store/products.js';
 import { isStoreOpen, getCloseTimeLabel } from '../config.js';
-import { Section } from './Shell.jsx';
+import { Section, BOTTOM_NAV_H } from './Shell.jsx';
 import { FadeIn } from '../components/FadeIn.jsx';
+import { Hero } from '../components/Hero.jsx';
+import { VitrineRail } from '../components/VitrineRail.jsx';
 
-export function MobileHome({ products, go, addToCart, openProduct, cartCount = 0 }) {
+export function MobileHome({ products, go, addToCart, openProduct }) {
   const loading = useProductsLoading();
 
   const bestSellers = products.filter(p => p.bestseller).slice(0, 4);
@@ -18,65 +20,10 @@ export function MobileHome({ products, go, addToCart, openProduct, cartCount = 0
 
   return (
     <div style={{ paddingBottom: 24 }}>
-      <div style={{ padding: '0 16px 14px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <img src="/assets/logo-roots-mark.png" alt="Roots" style={{ width: 40, height: 40 }} />
-            <div>
-              <div className="display" style={{ fontSize: 14, lineHeight: 1, letterSpacing: '0.04em' }}>ROOTS</div>
-              <div style={{ fontSize: 9, color: 'var(--ink-mute)', letterSpacing: '0.18em', textTransform: 'uppercase', marginTop: 2 }}>Recife</div>
-            </div>
-          </div>
-          <button onClick={() => go('cart')} style={{
-            width: 40, height: 40, borderRadius: 999,
-            border: '1px solid var(--line)', background: 'var(--bg-elev)', color: 'var(--ink)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-            position: 'relative',
-          }}>
-            <Icon.cart size={18}/>
-            {cartCount > 0 && (
-              <span style={{
-                position: 'absolute', top: 4, right: 4,
-                background: 'var(--rasta-red)', color: '#fff',
-                fontSize: 9, fontWeight: 700, padding: '2px 4px', borderRadius: 99,
-                minWidth: 14, textAlign: 'center', lineHeight: 1,
-              }}>{cartCount}</span>
-            )}
-          </button>
-        </div>
+      <Hero mobile minHeight={`calc(100svh - 58px - ${BOTTOM_NAV_H}px)`} />
+      <div className="rasta-stripe" style={{ height: 5 }} aria-hidden="true" />
 
-        <FadeIn delay={60}>
-        <div style={{
-          background: '#0d3d1d',
-          borderRadius: 16, padding: '22px 20px 24px',
-          position: 'relative', overflow: 'hidden',
-        }}>
-          <div style={{
-            position: 'absolute', top: -20, right: -30, width: 140, height: 140,
-            borderRadius: '50%', background: 'radial-gradient(circle, #f5b528 0%, transparent 70%)', opacity: 0.4,
-          }}/>
-          <div className="display-tight" style={{
-            fontSize: 44, color: '#fff', lineHeight: 0.95, letterSpacing: '0.01em',
-          }}>
-            ONE LOVE,<br/>
-            <span style={{ color: '#f5b528' }}>ONE HEART,</span><br/>
-            ONE SESSION.
-          </div>
-          <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12.5, marginTop: 14, marginBottom: 18, maxWidth: 240, lineHeight: 1.45 }}>
-            Curadoria de tabaco, narguilé e acessórios. Direto no seu Whats, em até 40 min.
-          </p>
-          <button className="btn-primary" onClick={() => go('catalog')} style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 18px',
-          }}>
-            Ver tudo <Icon.arrow size={16}/>
-          </button>
-          <div style={{ position: 'absolute', right: 14, bottom: 14, top: 14, width: 3,
-            background: 'linear-gradient(180deg, var(--rasta-green) 0 33.33%, var(--rasta-gold) 33.33% 66.66%, var(--rasta-red) 66.66% 100%)',
-            opacity: 0.5,
-          }}/>
-        </div>
-        </FadeIn>
-      </div>
+      <VitrineRail mobile products={products} loading={loading} go={go} openProduct={openProduct} addToCart={addToCart} scrollMarginTop={58} />
 
       <FadeIn delay={100}>
       <div style={{ padding: '8px 0 4px' }}>

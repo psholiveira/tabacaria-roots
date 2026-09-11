@@ -148,6 +148,10 @@ export function KineticMenu({ open, onClose, go, screen }) {
     <div ref={ref} id="knav" className="knav-wrap" data-nav="closed" aria-hidden={!open}>
       <div className="knav-overlay" onClick={onClose} />
       <nav className="knav-menu" aria-label="Menu principal">
+        {/* o header fica embaixo do overlay, então o "Fechar" mora aqui, no mesmo lugar */}
+        <div className="knav-close">
+          <MenuButton open={open} onClick={onClose} />
+        </div>
         <div className="knav-bg">
           <div className="knav-panel first" />
           <div className="knav-panel second" />

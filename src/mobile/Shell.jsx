@@ -1,7 +1,108 @@
 ﻿// mobile/Shell.jsx — Status bar, age gate, bottom nav
 
+import { STORE_INFO } from '../data.js';
 import { Icon } from '../components/Icons.jsx';
 import { FadeIn } from '../components/FadeIn.jsx';
+import { CartButton } from '../components/CartButton.jsx';
+import { MenuButton } from '../components/KineticMenu.jsx';
+import { GradientFooter } from '../components/GradientFooter.jsx';
+
+// altura da bottom nav (sem a safe area) — usada pra afastar o footer gradiente
+export const BOTTOM_NAV_H = 62;
+
+// ─── Barra superior fixa: logo, sacola animada e menu ────────────────────
+export function MobileTopBar({ cart, go, onOpenCart, menuOpen, onToggleMenu, lastAdded }) {
+  return (
+    <header style={{
+      position: 'sticky', top: 0, zIndex: 40,
+      background: 'var(--bg)', borderBottom: '1px solid var(--line)',
+    }}>
+      <div className="rasta-stripe" />
+      <div style={{ padding: '9px 14px 9px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+        <button onClick={() => go('home')} style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--ink)', padding: 0 }}>
+          <img src="/assets/logo-roots-mark.png" alt="Roots" style={{ width: 36, height: 36 }}/>
+          <div style={{ textAlign: 'left' }}>
+            <div className="display" style={{ fontSize: 13, letterSpacing: '0.06em', lineHeight: 1 }}>ROOTS</div>
+            <div style={{ fontSize: 8, color: 'var(--ink-mute)', letterSpacing: '0.2em', textTransform: 'uppercase', marginTop: 2 }}>Tabacaria · Recife</div>
+          </div>
+        </button>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <CartButton count={cart.count} total={cart.total} onClick={onOpenCart} lastAdded={lastAdded} />
+          <MenuButton open={menuOpen} onClick={onToggleMenu} />
+        </div>
+      </div>
+    </header>
+  );
+}
+
+// ─── Footer gradiente (versão compacta do desktop) ────────────────────────
+export function MobileFooter({ go }) {
+  const wa = `https://wa.me/${STORE_INFO.whatsapp}?text=${encodeURIComponent('Fala Roots! Quero fazer um pedido.')}`;
+  return (
+    <GradientFooter className="gfoot gfoot-mobile" gradientHeight="34vh" bottom={`calc(${BOTTOM_NAV_H}px + env(safe-area-inset-bottom, 8px))`}>
+      <div className="rasta-stripe" />
+      <div className="gfoot-inner">
+        <div className="gfoot-brand">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <img src="/assets/logo-roots-mark.png" alt="Roots" style={{ width: 40, height: 40 }}/>
+            <div>
+              <div className="display-tight" style={{ fontSize: 26, letterSpacing: '.12em', lineHeight: 1 }}>ROOTS</div>
+              <div className="gfoot-mono" style={{ marginTop: 4 }}>Recife · Brasil · desde 2017</div>
+            </div>
+          </div>
+          <p className="gfoot-lead">
+            One love, one heart, one session.<br/>
+            Curadoria de tabaco, narguilé, sedas, bongs e acessórios no coração da Boa Vista.
+          </p>
+          <a className="hero-cta hero-cta-solid gfoot-cta" href={wa} target="_blank" rel="noreferrer">
+            <Icon.whatsapp size={14}/> Fazer pedido no Whats
+          </a>
+        </div>
+
+        <nav className="gfoot-cols" aria-label="Rodapé">
+          <div>
+            <h3 className="gfoot-title">Loja</h3>
+            <ul>
+              <li><button onClick={() => go('catalog')}>Catálogo</button></li>
+              <li><button onClick={() => go('kit')}>Monte seu kit</button></li>
+              <li><button onClick={() => go('store')}>A loja</button></li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="gfoot-title">Contato</h3>
+            <ul>
+              <li><a href={wa} target="_blank" rel="noreferrer">{STORE_INFO.phone}</a></li>
+              <li><a href="https://instagram.com/tabacariareciferoots" target="_blank" rel="noreferrer">{STORE_INFO.instagram}</a></li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="gfoot-title">Onde</h3>
+            <ul>
+              <li><a href="https://maps.google.com/?q=Av.+Conde+da+Boa+Vista,+247,+Recife" target="_blank" rel="noreferrer">Av. Conde da Boa Vista, 247</a></li>
+              <li><a href="https://maps.google.com/?q=Rua+do+Hospicio,+250,+Recife" target="_blank" rel="noreferrer">Rua do Hospício, 250</a></li>
+              <li><span>Boa Vista · Recife/PE</span></li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="gfoot-title">Horário</h3>
+            <ul>
+              {STORE_INFO.hours.map(h => <li key={h.day}><span>{h.day} · {h.time}</span></li>)}
+            </ul>
+          </div>
+        </nav>
+
+        <div className="gfoot-bottom">
+          <span>© 2026 Roots Tabacaria</span>
+          <span className="gfoot-status">
+            <span className="gfoot-18">18</span>
+            Venda proibida para menores de 18 anos
+          </span>
+          <span>Fumar pode causar câncer · Lei nº 9.294/96</span>
+        </div>
+      </div>
+    </GradientFooter>
+  );
+}
 
 export function AgeGate({ onConfirm }) {
   return (

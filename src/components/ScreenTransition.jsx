@@ -5,7 +5,7 @@
 
 import { useLayoutEffect, useRef } from 'react';
 
-export function ScreenTransition({ dir = 1, children }) {
+export function ScreenTransition({ dir = 1, style, children }) {
   const ref = useRef(null);
 
   useLayoutEffect(() => {
@@ -15,5 +15,5 @@ export function ScreenTransition({ dir = 1, children }) {
       .forEach((sec, i) => sec.style.setProperty('--i', i));
   }, []);
 
-  return <div ref={ref} className="enter-screen" style={{ '--enter-x': `${36 * dir}px` }}>{children}</div>;
+  return <div ref={ref} className="enter-screen" style={{ '--enter-x': `${36 * dir}px`, ...style }}>{children}</div>;
 }

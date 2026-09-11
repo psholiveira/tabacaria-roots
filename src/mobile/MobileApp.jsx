@@ -1,10 +1,12 @@
 // mobile/MobileApp.jsx — orquestra todas as telas mobile
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useCart } from '../hooks/useCart.js';
 import { useProducts } from '../store/products.js';
-import { AgeGate, BottomNav } from './Shell.jsx';
+import { AgeGate, BottomNav, MobileTopBar, MobileFooter } from './Shell.jsx';
 import { CartToast } from '../components/CartToast.jsx';
+import { KineticMenu } from '../components/KineticMenu.jsx';
+import { ScreenTransition } from '../components/ScreenTransition.jsx';
 import { MobileHome } from './Home.jsx';
 import { MobileCatalog } from './Catalog.jsx';
 import { MobileProduct } from './Product.jsx';
@@ -42,7 +44,13 @@ export function MobileApp() {
     try { return localStorage.getItem(AGE_KEY) === '1'; } catch { return false; }
   });
   const [toast, setToast] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const cart = useCart();
+  // direção da animação de troca de tela (ordem das abas)
+  const SCREEN_ORDER = ['home', 'catalog', 'kit', 'product', 'cart', 'checkout', 'store'];
+  const prevScreen = useRef(screen);
+  const dir = SCREEN_ORDER.indexOf(screen) >= SCREEN_ORDER.indexOf(prevScreen.current) ? 1 : -1;
+  useEffect(() => { prevScreen.current = screen; }, [screen]);
   const allProducts = useProducts();
   // memoizado: a identidade estável evita resetar a lista progressiva do catálogo a cada render
   const products = useMemo(() => allProducts.filter(p => !p.hidden), [allProducts]);
@@ -77,6 +85,7 @@ export function MobileApp() {
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
 
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
   const go = (s, p = {}) => { if (s !== 'checkout') setHash(s, p); setScreen(s); setParams(p); window.scrollTo(0, 0); };
   const openProduct = (p) => { setHash('product', {}, p.id); setProduct(p); setScreen('product'); window.scrollTo(0, 0); };
 
@@ -87,13 +96,18 @@ export function MobileApp() {
 
   if (!ageOk) return <AgeGate onConfirm={confirmAge} />;
 
-  const showNav = ['home', 'catalog', 'cart', 'store'].includes(screen);
+  const showNav    = ['home', 'catalog', 'cart', 'store'].includes(screen);
+  const showFooter = ['home', 'catalog', 'store', 'kit'].includes(screen);
 
   return (
-    <div className="roots-app" style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-      <div key={screen} style={{ flex: 1, maxWidth: 480, width: '100%', margin: '0 auto', animation: 'page-enter 0.24s ease-out' }}>
+    <div className="roots-app" style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', position: 'relative', overflowX: 'clip' }}>
+      <MobileTopBar cart={cart} go={go} onOpenCart={() => go('cart')} lastAdded={toast}
+        menuOpen={menuOpen} onToggleMenu={() => setMenuOpen(o => !o)} />
+      <KineticMenu open={menuOpen} onClose={closeMenu} go={go} screen={screen} />
+      <ScreenTransition key={screen} dir={dir} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ flex: 1, width: '100%' }}>
         {screen === 'home' && (
-          <MobileHome products={products} go={go} addToCart={addToCart} openProduct={openProduct} cartCount={cart.count} />
+          <MobileHome products={products} go={go} addToCart={addToCart} openProduct={openProduct} />
         )}
         {screen === 'catalog' && (
           <MobileCatalog
@@ -103,7 +117,6 @@ export function MobileApp() {
             openProduct={openProduct}
             onBack={() => go('home')}
             go={go}
-            cartCount={cart.count}
           />
         )}
         {screen === 'product' && product && (
@@ -114,7 +127,6 @@ export function MobileApp() {
             openProduct={openProduct}
             onBack={() => go('catalog')}
             go={go}
-            cartCount={cart.count}
           />
         )}
         {screen === 'cart' && (
@@ -135,6 +147,8 @@ export function MobileApp() {
           />
         )}
       </div>
+      </ScreenTransition>
+      {showFooter && <MobileFooter go={go} />}
       {showNav && <BottomNav active={screen} onNav={go} cartCount={cart.count} />}
       {toast && (
         <CartToast

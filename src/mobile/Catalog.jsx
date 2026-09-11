@@ -10,7 +10,7 @@ import { useProductsLoading } from '../store/products.js';
 import { useProgressiveList } from '../hooks/useProgressiveList.js';
 import { MobileHeader } from './Shell.jsx';
 
-export function MobileCatalog({ products, initialCat, addToCart, openProduct, onBack, go, cartCount = 0 }) {
+export function MobileCatalog({ products, initialCat, addToCart, openProduct, onBack, go }) {
   const loading = useProductsLoading();
   const [cat, setCat] = useState(initialCat || 'all');
   const [q, setQ] = useState('');
@@ -30,24 +30,7 @@ export function MobileCatalog({ products, initialCat, addToCart, openProduct, on
 
   return (
     <div style={{ paddingBottom: 24 }}>
-      <MobileHeader title="Catálogo" onBack={onBack} right={
-        <button onClick={() => go('cart')} style={{
-          width: 36, height: 36, borderRadius: 999, border: '1px solid var(--line)',
-          background: 'var(--bg-elev)', color: 'var(--ink)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-          position: 'relative',
-        }}>
-          <Icon.cart size={16}/>
-          {cartCount > 0 && (
-            <span style={{
-              position: 'absolute', top: 4, right: 4,
-              background: 'var(--rasta-red)', color: '#fff',
-              fontSize: 9, fontWeight: 700, padding: '2px 4px', borderRadius: 99,
-              minWidth: 14, textAlign: 'center', lineHeight: 1,
-            }}>{cartCount}</span>
-          )}
-        </button>
-      }/>
+      <MobileHeader title="Catálogo" onBack={onBack} />
 
       <div style={{ padding: '0 16px 12px', position: 'relative' }}>
         <Icon.search size={16} style={{ position: 'absolute', left: 30, top: 14, color: 'var(--ink-mute)' }} />

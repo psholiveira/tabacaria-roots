@@ -167,7 +167,8 @@ html, body { background: #0c0c0a; }
 }
 .enter-step .kit-step-head { --enter-x: var(--head-x, 40px); animation: enter-slide .6s cubic-bezier(.16, 1, .3, 1) both; }
 .enter-step .kit-tile[data-enter] { --enter-y: 14px; animation: enter-rise .6s cubic-bezier(.16, 1, .3, 1) both; animation-delay: calc(50ms + var(--i, 0) * 40ms); }
-.enter-step .kit-row[data-enter]  { --enter-y: 0px;  animation: enter-rise .6s cubic-bezier(.16, 1, .3, 1) both; animation-delay: calc(var(--i, 0) * 50ms); }
+.enter-step .kit-row[data-enter],
+.enter-step .cart-row[data-enter] { --enter-y: 0px;  animation: enter-rise .6s cubic-bezier(.16, 1, .3, 1) both; animation-delay: calc(var(--i, 0) * 50ms); }
 @media (prefers-reduced-motion: reduce) {
   .enter-screen, .enter-screen section, .enter-step .kit-step-head, .enter-step [data-enter] { animation: none; }
 }
@@ -513,6 +514,8 @@ html, body { background: #0c0c0a; }
 .knav-shape { position: absolute; right: -10%; bottom: -8%; width: 78%; height: auto; opacity: 0; transition: opacity .25s ease; }
 .knav-shape.active { opacity: 1; }
 
+.knav-close { position: absolute; top: 18px; right: 36px; z-index: 3; }
+.knav-close .knav-btn { background: var(--bg); }
 .knav-content {
   position: relative; z-index: 2; flex: 1;
   display: flex; flex-direction: column; justify-content: space-between; gap: 32px;
@@ -579,6 +582,20 @@ html, body { background: #0c0c0a; }
 .gfoot-18 {
   display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%;
   border: 2px solid var(--rasta-red); color: #ffb3b8; font-family: 'Bebas Neue', sans-serif; font-size: 12px; letter-spacing: .02em;
+}
+
+/* footer no mobile: uma coluna, links em duas colunas, faixa mais baixa */
+.gfoot-mobile .gfoot-inner { padding: 36px 16px 0; }
+.gfoot-mobile .gfoot-brand { padding-bottom: 28px; }
+.gfoot-mobile .gfoot-cols { grid-template-columns: 1fr 1fr; gap: 22px 18px; padding-bottom: 28px; }
+.gfoot-mobile .gfoot-bottom { flex-direction: column; align-items: flex-start; gap: 10px; padding-bottom: 14px; }
+/* menu cinético em tela estreita: menos respiro no topo, links um pouco menores */
+@media (max-width: 767px) {
+  .knav-close { top: 13px; right: 14px; }
+  .knav-content { padding: 84px 22px 28px; gap: 24px; }
+  .knav-link { font-size: clamp(28px, 8.6vw, 36px); }
+  .knav-footer { font-size: 12px; gap: 16px 18px; }
+  .knav-shape { width: 100%; right: -20%; bottom: -4%; }
 }
 
 /* ============================================================
