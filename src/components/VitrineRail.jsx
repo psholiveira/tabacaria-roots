@@ -110,7 +110,8 @@ export function VitrineRail({ products, loading, go, openProduct, addToCart, mob
           });
         };
 
-        const rail = loopX(root.querySelector('[data-rail]'), RAIL_SECONDS);
+        const railEl = root.querySelector('[data-rail]');
+        const rail = loopX(railEl, RAIL_SECONDS);
 
         const mask = root.querySelector('[data-rail-mask]');
         if (mask && rail) {
@@ -120,6 +121,43 @@ export function VitrineRail({ products, loading, go, openProduct, addToCart, mob
           mask.addEventListener(on[0], slow, { passive: true });
           mask.addEventListener(on[1], back, { passive: true });
           listeners.push(() => { mask.removeEventListener(on[0], slow); mask.removeEventListener(on[1], back); });
+
+          // clicar e arrastar: pausa o loop e move o progresso junto com o ponteiro.
+          // Só vira arrasto depois de 6px, pra um toque simples ainda abrir o produto.
+          let drag = null, dragged = false;
+          mask.style.cursor = 'grab';
+          const down = e => {
+            if (e.button > 0) return;
+            drag = { x: e.clientX, p: rail.progress(), id: e.pointerId, half: railEl.scrollWidth / 2 };
+            dragged = false;
+          };
+          const move = e => {
+            if (!drag) return;
+            const dx = e.clientX - drag.x;
+            if (!dragged) {
+              if (Math.abs(dx) < 6) return;
+              dragged = true;
+              rail.pause();
+              mask.setPointerCapture(drag.id);
+              mask.style.cursor = 'grabbing';
+            }
+            rail.progress((((drag.p - dx / drag.half) % 1) + 1) % 1);
+          };
+          const up = () => {
+            if (!drag) return;
+            drag = null;
+            if (dragged) { rail.play(); mask.style.cursor = 'grab'; }
+          };
+          // engole o click que o navegador dispara no fim do arrasto
+          const click = e => { if (dragged) { e.stopPropagation(); e.preventDefault(); dragged = false; } };
+          const noNativeDrag = e => e.preventDefault();
+          const evs = [['pointerdown', down], ['pointermove', move], ['pointerup', up], ['pointercancel', up], ['dragstart', noNativeDrag]];
+          evs.forEach(([t, fn]) => mask.addEventListener(t, fn));
+          mask.addEventListener('click', click, true);
+          listeners.push(() => {
+            evs.forEach(([t, fn]) => mask.removeEventListener(t, fn));
+            mask.removeEventListener('click', click, true);
+          });
         }
 
         if (rail) {
@@ -176,6 +214,7 @@ export function VitrineRail({ products, loading, go, openProduct, addToCart, mob
       ) : railItems.length > 0 ? (
         <div data-rail-mask="" style={{
           position: 'relative', width: '100%', overflow: 'hidden',
+          touchAction: 'pan-y', userSelect: 'none', WebkitUserSelect: 'none',
           WebkitMaskImage: 'linear-gradient(90deg,transparent 0%,#000 7%,#000 93%,transparent 100%)',
           maskImage: 'linear-gradient(90deg,transparent 0%,#000 7%,#000 93%,transparent 100%)',
         }}>
