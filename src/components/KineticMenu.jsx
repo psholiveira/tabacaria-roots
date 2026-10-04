@@ -13,11 +13,11 @@ const WA_LINK = `https://wa.me/${STORE_INFO.whatsapp}?text=${encodeURIComponent(
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const LINKS = [
-  { id: 'home',    label: 'Início',        shape: 1 },
-  { id: 'catalog', label: 'Catálogo',      shape: 2 },
-  { id: 'kit',     label: 'Monte seu kit', shape: 3 },
-  { id: 'store',   label: 'A loja',        shape: 4 },
-  { id: 'whats',   label: 'Falar no Whats', shape: 5, href: WA_LINK },
+  { id: 'home',    label: 'Início',         },
+  { id: 'catalog', label: 'Catálogo',      },
+  { id: 'kit',     label: 'Monte seu kit',  },
+  { id: 'store',   label: 'A loja',      },
+  { id: 'whats',   label: 'Falar no Whats', href: WA_LINK },
 ];
 
 // ─── Botão do header: texto "Menu"/"Fechar" desliza, ícone "+" vira "×" ──────
