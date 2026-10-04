@@ -532,7 +532,6 @@ html, body { background: #0c0c0a; }
   transition: color .3s ease;
 }
 .knav-link:hover, .knav-link.is-active { color: var(--accent); }
-.knav-idx { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .2em; color: var(--ink-mute); }
 .knav-link-bg {
   position: absolute; inset: 0; z-index: -1; border-radius: 8px;
   background: rgba(245,181,40,.08);
