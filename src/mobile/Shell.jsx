@@ -39,7 +39,7 @@ export function MobileTopBar({ cart, go, onOpenCart, menuOpen, onToggleMenu, las
 export function MobileFooter({ go }) {
   const wa = `https://wa.me/${STORE_INFO.whatsapp}?text=${encodeURIComponent('Fala Roots! Quero fazer um pedido.')}`;
   return (
-    <GradientFooter className="gfoot gfoot-mobile" gradientHeight="34vh" bottom={`calc(${BOTTOM_NAV_H}px + env(safe-area-inset-bottom, 8px))`}>
+    <GradientFooter className="gfoot gfoot-mobile" gradientHeight="34vh" minReveal={0} bottom={`calc(${BOTTOM_NAV_H}px + env(safe-area-inset-bottom, 8px))`}>
       <div className="rasta-stripe" />
       <div className="gfoot-inner">
         <div className="gfoot-brand">
