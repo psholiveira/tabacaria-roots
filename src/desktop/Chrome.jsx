@@ -127,6 +127,9 @@ export function DesktopFooter({ go }) {
           </span>
           <span>Fumar pode causar câncer · Lei nº 9.294/96</span>
         </div>
+        <div className="gfoot-credit">
+          Feito por <img src="/assets/logo-automatia.png" alt="AutomatIA" width="103" height="24"/>
+        </div>
       </div>
     </GradientFooter>
   );

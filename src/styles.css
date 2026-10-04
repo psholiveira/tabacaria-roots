@@ -578,6 +578,8 @@ html, body { background: #0c0c0a; }
   padding: 22px 0 8px; border-top: 1px solid var(--line); color: var(--ink-mute); font-size: 10.5px;
 }
 .gfoot-status { display: inline-flex; align-items: center; gap: 10px; }
+.gfoot-credit { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 0 8px; color: var(--ink-mute); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; }
+.gfoot-credit img { height: 24px; width: auto; opacity: .85; }
 .gfoot-18 {
   display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%;
   border: 2px solid var(--rasta-red); color: #ffb3b8; font-family: 'Bebas Neue', sans-serif; font-size: 12px; letter-spacing: .02em;
