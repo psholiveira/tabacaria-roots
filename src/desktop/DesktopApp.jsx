@@ -14,27 +14,18 @@ import { AgeGate } from '../mobile/Shell.jsx';
 import { KitBuilder } from '../components/KitBuilder.jsx';
 import { KineticMenu } from '../components/KineticMenu.jsx';
 import { ScreenTransition } from '../components/ScreenTransition.jsx';
+import { parsePath, pathFor, navigate, titleFor } from '../lib/routes.js';
 
 const AGE_KEY = 'roots:age-confirmed';
 
-function parseHash() {
-  const [s, param] = window.location.hash.slice(1).split('/');
-  if (s === 'catalog') return { screen: 'catalog', params: param ? { cat: param } : {}, productId: null };
-  if (s === 'product' && param) return { screen: 'product', params: {}, productId: param };
-  if (s === 'store')  return { screen: 'store',  params: {}, productId: null };
-  if (s === 'kit')    return { screen: 'kit',    params: {}, productId: null };
-  return { screen: 'home', params: {}, productId: null };
-}
-
-function setHash(screen, params = {}, productId = null) {
-  if (screen === 'product' && productId) { window.location.hash = `product/${productId}`; return; }
-  if (screen === 'catalog') { window.location.hash = params.cat ? `catalog/${params.cat}` : 'catalog'; return; }
-  if (['home', 'store', 'kit'].includes(screen)) { window.location.hash = screen; return; }
-  window.location.hash = 'home';
+// desktop não tem tela de sacola (é gaveta): /sacola cai na home
+function parseRoute() {
+  const r = parsePath(window.location.pathname);
+  return r.screen === 'cart' ? { ...r, screen: 'home' } : r;
 }
 
 export function DesktopApp() {
-  const initial = parseHash();
+  const initial = parseRoute();
   const [screen, setScreen] = useState(initial.screen);
   const [params, setParams] = useState(initial.params);
   const [product, setProduct] = useState(null);
@@ -65,20 +56,22 @@ export function DesktopApp() {
 
   // Sincroniza navegação pelo botão voltar do browser
   useEffect(() => {
-    const onHash = () => {
-      const { screen: s, params: p, productId } = parseHash();
+    const onPop = () => {
+      const { screen: s, params: p, productId } = parseRoute();
       setScreen(s);
       setParams(p);
       if (productId) setPendingId(productId);
       else if (s !== 'product') setProduct(null);
     };
-    window.addEventListener('hashchange', onHash);
-    return () => window.removeEventListener('hashchange', onHash);
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
   }, []);
 
+  useEffect(() => { document.title = titleFor(screen, params, product); }, [screen, params, product]);
+
   const closeMenu = useCallback(() => setMenuOpen(false), []);
-  const go = (s, p = {}) => { setHash(s, p); setScreen(s); setParams(p); if (s !== 'catalog') setCatalogQ(''); window.scrollTo(0, 0); };
-  const openProduct = (p) => { setHash('product', {}, p.id); setProduct(p); setScreen('product'); window.scrollTo(0, 0); };
+  const go = (s, p = {}) => { navigate(pathFor(s, p)); setScreen(s); setParams(p); if (s !== 'catalog') setCatalogQ(''); window.scrollTo(0, 0); };
+  const openProduct = (p) => { navigate(pathFor('product', {}, p)); setProduct(p); setScreen('product'); window.scrollTo(0, 0); };
   const addToCart = (p, v) => { cart.add(p, v); setToast({ product: p, id: Date.now() }); };
 
   // Monte seu kit → joga tudo na sacola de uma vez

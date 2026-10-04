@@ -118,7 +118,7 @@ const handleLogout = async () => {
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-            <a href="#" style={{ fontSize: 11.5, color: 'var(--ink-dim)', textDecoration: 'none', padding: '8px 12px' }}>
+            <a href="/" style={{ fontSize: 11.5, color: 'var(--ink-dim)', textDecoration: 'none', padding: '8px 12px' }}>
               ← Voltar à loja
             </a>
             <button onClick={() => setShowSecurity(true)} className="btn-ghost" style={{ fontSize: 11 }}>

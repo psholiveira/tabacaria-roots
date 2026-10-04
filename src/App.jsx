@@ -1,4 +1,4 @@
-// App.jsx — switch responsivo + roteamento por hash + auth admin
+// App.jsx — switch responsivo + roteamento por URL + auth admin
 
 import { useEffect, useState, lazy, Suspense } from 'react';
 import { MobileApp }    from './mobile/MobileApp.jsx';
@@ -7,18 +7,23 @@ import { ErrorBoundary } from './components/ErrorBoundary.jsx';
 import { supabase }     from './lib/supabase.js';
 import { initProducts } from './store/products.js';
 import { useIsMobile }  from './hooks/useIsMobile.js';
+import { parsePath, migrateHashRoute } from './lib/routes.js';
 
 const AdminApp   = lazy(() => import('./admin/Admin.jsx').then(m => ({ default: m.AdminApp })));
 const AdminLogin = lazy(() => import('./admin/AdminLogin.jsx').then(m => ({ default: m.AdminLogin })));
 
-function useHashRoute() {
-  const [hash, setHash] = useState(() => window.location.hash.slice(1));
+migrateHashRoute();
+
+// só decide loja × admin; as telas da loja escutam o popstate por conta própria
+function useIsAdminRoute() {
+  const check = () => parsePath(window.location.pathname).screen === 'admin';
+  const [isAdmin, setIsAdmin] = useState(check);
   useEffect(() => {
-    const onHash = () => setHash(window.location.hash.slice(1));
-    window.addEventListener('hashchange', onHash);
-    return () => window.removeEventListener('hashchange', onHash);
+    const onPop = () => setIsAdmin(check());
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
   }, []);
-  return hash;
+  return isAdmin;
 }
 
 // ─── Spinner compartilhado ────────────────────────────────────────────────
@@ -52,13 +57,13 @@ function AdminRoute() {
 
 // ─── App raiz ─────────────────────────────────────────────────────────────
 export default function App() {
-  const route    = useHashRoute();
+  const isAdmin  = useIsAdminRoute();
   const isMobile = useIsMobile();
 
   // Carrega produtos do Supabase na inicialização
   useEffect(() => { initProducts(); }, []);
 
-  if (route === 'admin') {
+  if (isAdmin) {
     return (
       <ErrorBoundary>
         <Suspense fallback={<Spinner />}>

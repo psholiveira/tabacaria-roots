@@ -244,7 +244,7 @@ export function AdminLogin() {
         </div>
 
         <div style={{ marginTop: 28, textAlign: 'center' }}>
-          <a href="#" style={{ fontSize: 12, color: 'var(--ink-mute)', textDecoration: 'none' }}>
+          <a href="/" style={{ fontSize: 12, color: 'var(--ink-mute)', textDecoration: 'none' }}>
             ← Voltar à loja
           </a>
         </div>

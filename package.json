@@ -6,7 +6,7 @@
   "description": "Catálogo da Tabacaria Roots — Recife",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/sitemap.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
