@@ -1,12 +1,7 @@
-// components/GradientFooter.jsx — footer com brilho rasta preso ao rodapé da viewport.
-// O conteúdo vem primeiro; a faixa borrada fica fixa no chão e cresce nos últimos
-// pixels de scroll, chegando à altura total exatamente no fim da página.
+// components/GradientFooter.jsx — footer com brilho rasta subindo do chão.
+// O conteúdo vem primeiro; a faixa borrada fica ancorada no fim do próprio footer
+// e entra na tela junto com o scroll (nada fixo na viewport).
 // Adaptado do "Ruixen Gradient Footer" (design do gradiente inspirado no Dia Browser).
-
-import { useEffect, useId, useRef, useState } from 'react';
-
-const VBW = 1271;
-const VBH = 599;
 
 // chão (0) → topo (1): preto → verde profundo → verde → dourado → vermelho → transparente
 const ROOTS_STOPS = [
@@ -26,96 +21,54 @@ function bellHeights(n, peak, valley) {
   for (let i = 0; i < n; i++) {
     const t = mid === 0 ? 0 : Math.abs(i - mid) / mid;
     const eased = 1 - Math.pow(t, 1.24);
-    out.push(peak * VBH * (valley + (1 - valley) * eased));
+    out.push(peak * (valley + (1 - valley) * eased)); // fração da altura da faixa
   }
   return out;
 }
 
-const clamp01 = v => Math.max(0, Math.min(1, v));
-
 export function GradientFooter({
   children,
-  gradientHeight = '40vh', // altura da faixa; também é a distância de scroll da revelação
-  minReveal = 0.045,       // tira fina no chão antes da revelação (0 = escondida)
+  gradientHeight = '40vh', // altura da faixa no fim do footer
   bottom = 0,              // afasta a faixa do chão (ex: altura da bottom nav no mobile)
   bars = 9,
-  blur = 15,
+  blur = 18,               // px
   peak = 0.98,
   valley = 0.55,
   stops = ROOTS_STOPS,
   className,
   style,
 }) {
-  const uid = useId().replace(/:/g, '');
-  const bandRef = useRef(null);
-  const [progress, setProgress] = useState(minReveal);
-
-  useEffect(() => {
-    const el = bandRef.current;
-    if (!el) return;
-    const doc = el.ownerDocument;
-    const win = doc.defaultView ?? window;
-    let raf = 0;
-    const measure = () => {
-      raf = 0;
-      const h = el.offsetHeight || 1;
-      const left = doc.documentElement.scrollHeight - win.innerHeight - win.scrollY;
-      const t = clamp01((h - left) / h);
-      setProgress(minReveal + (1 - minReveal) * t);
-    };
-    const onScroll = () => { if (!raf) raf = win.requestAnimationFrame(measure); };
-    measure();
-    win.addEventListener('scroll', onScroll, { passive: true });
-    win.addEventListener('resize', onScroll, { passive: true });
-    // troca de tela muda a altura da página sem evento de scroll
-    const ro = 'ResizeObserver' in win ? new win.ResizeObserver(onScroll) : null;
-    ro?.observe(doc.documentElement);
-    return () => {
-      win.removeEventListener('scroll', onScroll);
-      win.removeEventListener('resize', onScroll);
-      ro?.disconnect();
-      if (raf) win.cancelAnimationFrame(raf);
-    };
-  }, [minReveal]);
-
-  const colW = VBW / bars;
+  const gradient = `linear-gradient(to top, ${stops.map(s => `${s.color} ${s.offset * 100}%`).join(', ')})`;
+  const bottomCss = typeof bottom === 'number' ? `${bottom}px` : bottom;
 
   return (
-    <footer className={className} style={{ paddingBottom: gradientHeight, ...style }}>
+    <footer
+      className={className}
+      style={{ position: 'relative', paddingBottom: `calc(${gradientHeight} + ${bottomCss})`, ...style }}
+    >
       {children}
 
-      {/* fixo na viewport — um ancestral com transform/filter capturaria ele */}
+      {/* barras em CSS: o blur é rasterizado na resolução da tela (SVG esticado borrava pixelado) */}
       <div
-        ref={bandRef}
         aria-hidden
         style={{
-          position: 'fixed', left: 0, right: 0, bottom,
-          height: gradientHeight, pointerEvents: 'none',
-          transformOrigin: 'bottom', transform: `scaleY(${progress})`,
-          willChange: 'transform',
+          position: 'absolute', left: 0, right: 0, bottom,
+          height: gradientHeight, pointerEvents: 'none', overflow: 'hidden',
         }}
       >
-        <svg
-          style={{ height: '100%', width: '100%', display: 'block' }}
-          viewBox={`0 0 ${VBW} ${VBH}`}
-          preserveAspectRatio="none"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <defs>
-            <linearGradient id={`grad-${uid}`} x1="0" y1="1" x2="0" y2="0">
-              {stops.map((s, i) => <stop key={i} offset={s.offset} stopColor={s.color} />)}
-            </linearGradient>
-            <filter id={`blur-${uid}`} x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation={blur} />
-            </filter>
-          </defs>
-          {bellHeights(bars, peak, valley).map((barH, i) => (
-            <g key={i} filter={`url(#blur-${uid})`}>
-              <rect x={i * colW} y={VBH - barH} width={colW * 1.23} height={barH} fill={`url(#grad-${uid})`} />
-            </g>
-          ))}
-        </svg>
+        {bellHeights(bars, peak, valley).map((h, i) => (
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              left: `${(i * 100) / bars}%`, width: `${123 / bars}%`,
+              // passa do chão pra borda de baixo do blur não clarear
+              bottom: -2 * blur, height: `calc(${h * 100}% + ${2 * blur}px)`,
+              background: gradient,
+              filter: `blur(${blur}px)`,
+            }}
+          />
+        ))}
       </div>
     </footer>
   );
