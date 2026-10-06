@@ -37,7 +37,6 @@ export function DesktopApp() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [toast, setToast] = useState(null);
   const [catalogQ, setCatalogQ] = useState('');
-  const cart = useCart();
   // direção da animação de troca de tela (ordem das abas do menu)
   const SCREEN_ORDER = ['home', 'catalog', 'kit', 'store', 'product'];
   const prevScreen = useRef(screen);
@@ -46,6 +45,7 @@ export function DesktopApp() {
   const allProducts = useProducts();
   // memoizado: a identidade estável evita resetar a lista progressiva do catálogo a cada render
   const products = useMemo(() => allProducts.filter(p => !p.hidden), [allProducts]);
+  const cart = useCart(products);
 
   // Restaura produto pelo ID quando os produtos carregam
   useEffect(() => {

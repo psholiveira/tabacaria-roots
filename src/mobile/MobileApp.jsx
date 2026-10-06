@@ -29,7 +29,6 @@ export function MobileApp() {
   });
   const [toast, setToast] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const cart = useCart();
   // direção da animação de troca de tela (ordem das abas)
   const SCREEN_ORDER = ['home', 'catalog', 'kit', 'product', 'cart', 'checkout', 'store'];
   const prevScreen = useRef(screen);
@@ -38,6 +37,7 @@ export function MobileApp() {
   const allProducts = useProducts();
   // memoizado: a identidade estável evita resetar a lista progressiva do catálogo a cada render
   const products = useMemo(() => allProducts.filter(p => !p.hidden), [allProducts]);
+  const cart = useCart(products);
 
   const addToCart = (p, v) => { cart.add(p, v); setToast({ product: p, id: Date.now() }); };
 

@@ -1,19 +1,36 @@
 // hooks/useCart.js — Carrinho + helpers de checkout WhatsApp
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { STORE_INFO, formatBRL } from '../data.js';
 
 const CART_KEY = 'roots_cart';
 
-export function useCart() {
-  const [items, setItems] = useState(() => {
-    try { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); }
-    catch { return []; }
+// O localStorage é editável pelo cliente: dele só vale o id, a variação e a qtd.
+// Preço/nome vêm sempre do catálogo atual; produto que sumiu ou foi ocultado sai.
+export function resolveCartItems(stored, products) {
+  const byId = new Map(products.map(p => [p.id, p]));
+  return stored.flatMap(i => {
+    const product = byId.get(i?.product?.id);
+    const qty = Math.floor(Number(i?.qty));
+    if (!product || !(qty >= 1)) return [];
+    return [{ ...i, product, qty: Math.min(qty, 99) }];
+  });
+}
+
+// products = catálogo visível (sem ocultos)
+export function useCart(products) {
+  const [stored, setItems] = useState(() => {
+    try {
+      const v = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+      return Array.isArray(v) ? v : [];
+    } catch { return []; }
   });
 
   useEffect(() => {
-    localStorage.setItem(CART_KEY, JSON.stringify(items));
-  }, [items]);
+    try { localStorage.setItem(CART_KEY, JSON.stringify(stored)); } catch {}
+  }, [stored]);
+
+  const items = useMemo(() => resolveCartItems(stored, products), [stored, products]);
 
   const add = (product, variation) => {
     setItems(prev => {
