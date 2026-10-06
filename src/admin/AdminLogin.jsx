@@ -28,7 +28,8 @@ function writeGuard(email, guard) {
   } catch { /* localStorage indisponível: ignora */ }
 }
 
-export function AdminLogin() {
+// needsMfa: há sessão de senha (aal1) mas a conta exige o código TOTP
+export function AdminLogin({ needsMfa = false }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -54,6 +55,33 @@ export function AdminLogin() {
     }, 1000);
     return () => clearInterval(t);
   }, [lockedUntil]);
+
+  // A etapa do código é dirigida pelo AdminRoute, que só libera o painel em aal2
+  useEffect(() => {
+    if (!needsMfa) {
+      setMfaFactorId(null); setMfaChallenge(null); setMfaCode('');
+      return;
+    }
+    let alive = true;
+    (async () => {
+      const { data: factors } = await supabase.auth.mfa.listFactors();
+      const factor = factors?.totp?.[0];
+      const { data: challenge, error: challengeError } = factor
+        ? await supabase.auth.mfa.challenge({ factorId: factor.id })
+        : { data: null, error: true };
+      if (!alive) return;
+      setLoading(false);
+      if (challengeError) {
+        // derruba a sessão de senha pra não ficar preso; o próximo login tenta de novo
+        await supabase.auth.signOut();
+        setError('Erro ao iniciar verificação MFA. Tente novamente.');
+        return;
+      }
+      setMfaFactorId(factor.id);
+      setMfaChallenge(challenge.id);
+    })();
+    return () => { alive = false; };
+  }, [needsMfa]);
 
   const secondsLeft = lockedUntil ? Math.max(0, Math.ceil((lockedUntil - now) / 1000)) : 0;
   const isLocked = secondsLeft > 0;
@@ -97,26 +125,7 @@ export function AdminLogin() {
       return;
     }
 
-    // Login de senha ok. Verifica se a conta exige um segundo fator (MFA).
-    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-    if (aal && aal.nextLevel === 'aal2' && aal.currentLevel !== aal.nextLevel) {
-      const { data: factors } = await supabase.auth.mfa.listFactors();
-      const factor = factors?.totp?.[0];
-      if (factor) {
-        const { data: challenge, error: challengeError } = await supabase.auth.mfa.challenge({ factorId: factor.id });
-        if (challengeError) {
-          setError('Erro ao iniciar verificação MFA. Tente novamente.');
-          setLoading(false);
-          return;
-        }
-        setMfaFactorId(factor.id);
-        setMfaChallenge(challenge.id);
-        setLoading(false);
-        return;
-      }
-    }
-
-    // Sem MFA pendente: limpa tentativas e deixa onAuthStateChange redirecionar
+    // Senha ok: limpa tentativas. O AdminRoute decide se abre o painel ou pede o código MFA.
     writeGuard(normalizedEmail, { attempts: 0, lockedUntil: 0 });
   };
 
@@ -174,6 +183,12 @@ export function AdminLogin() {
             style={{ width: '100%', padding: '13px', fontSize: 13, letterSpacing: '0.06em' }}
           >
             {loading ? 'Verificando...' : 'Confirmar'}
+          </button>
+          <button
+            type="button" className="btn-ghost" onClick={() => supabase.auth.signOut()}
+            style={{ width: '100%', marginTop: 8, fontSize: 12 }}
+          >
+            Sair
           </button>
         </form>
       </div>
